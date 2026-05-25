@@ -140,12 +140,48 @@ select:focus,input:focus{border-color:var(--grm);box-shadow:0 0 0 3px rgba(26,12
 .newbtn:hover{background:var(--s3)}
 .newbtn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
 .slbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:10px}
+/* Award Search */
+.src-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.src-form.g3{grid-template-columns:1fr 1fr 1fr}
+.srch-btn{width:100%;padding:13px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--gr);color:#fff;border:none;border-radius:var(--rad);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.srch-btn:hover{background:#0d3d22}
+.srch-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.srch-btn:disabled{opacity:.6;cursor:not-allowed}
+.api-key-wrap{background:var(--gol);border:1px solid #d4b870;border-radius:var(--rad);padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--go);line-height:1.6}
+.api-key-wrap strong{color:#4a3500}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:20px}
+.res-card{background:var(--surface);border:1px solid var(--bd);border-radius:var(--radl);padding:16px;box-shadow:var(--sh);position:relative}
+.res-card.direct-badge::after{content:'Direct';position:absolute;top:10px;right:10px;background:var(--grm);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.3px}
+.res-date{font-size:18px;font-weight:600;color:var(--tx);margin-bottom:4px}
+.res-route{font-size:12px;color:var(--tx3);margin-bottom:12px}
+.res-cabins{display:flex;flex-direction:column;gap:6px}
+.res-cabin{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:8px;font-size:12.5px}
+.res-cabin.eco-row{background:#f0f8f0}
+.res-cabin.prem-row{background:#eef3fc}
+.res-cabin.biz-row{background:#fdf5ec}
+.res-cabin.fst-row{background:#f5eeff}
+.res-cabin-name{font-weight:600;color:var(--tx)}
+.res-cabin-info{text-align:right}
+.res-miles{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--tx)}
+.res-airlines{font-size:11px;color:var(--tx3);margin-top:1px}
+.res-updated{font-size:11px;color:var(--tx3);margin-top:10px;padding-top:8px;border-top:1px solid var(--bd)}
+.src-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.src-count{font-size:13px;font-weight:500;color:var(--tx2)}
+.src-sort{font-size:12px;color:var(--tx3);display:flex;align-items:center;gap:6px}
+.src-sort select{width:auto;font-size:12px;padding:5px 28px 5px 10px}
+.no-results{text-align:center;padding:48px 20px;color:var(--tx3);font-size:14px;background:var(--surface);border:1px solid var(--bd);border-radius:var(--radl)}
+.no-results svg{width:36px;height:36px;stroke:var(--bds);fill:none;stroke-width:1.5;display:block;margin:0 auto 12px}
+.pg-row{display:flex;justify-content:center;gap:8px;margin-top:4px}
+.pg-btn{padding:8px 16px;font-size:13px;font-weight:500;background:var(--surface);border:1px solid var(--bds);border-radius:8px;cursor:pointer;color:var(--tx2);font-family:'DM Sans',sans-serif}
+.pg-btn:hover{background:var(--s2)} .pg-btn:disabled{opacity:.4;cursor:not-allowed}
+.src-prog{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--s3);color:var(--tx2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
 @media(max-width:600px){
   .hdr{padding:24px 18px}.wrap{padding:18px 14px 0}
   .card{padding:18px}.g2,.g3{grid-template-columns:1fr}
   .mets{grid-template-columns:1fr 1fr}.bdgrid{grid-template-columns:1fr}
   .rbody,.rhero{padding:18px}.rh1{font-size:20px}
-  .mtab span{display:none}
+  .mtab span{display:none}.src-form,.src-form.g3{grid-template-columns:1fr}
+  .res-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -157,7 +193,7 @@ select:focus,input:focus{border-color:var(--grm);box-shadow:0 0 0 3px rgba(26,12
   </div>
 </div>
 <div class="wrap">
-  <div class="mtabs">
+  <div class="mtabs" style="grid-template-columns:1fr 1fr 1fr 1fr">
     <button class="mtab on" onclick="setMode('flight',this)">
       <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
       <span>Flight</span>
@@ -170,11 +206,15 @@ select:focus,input:focus{border-color:var(--grm);box-shadow:0 0 0 3px rgba(26,12
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
       <span>Companion</span>
     </button>
+    <button class="mtab" id="tab-search" onclick="setMode('search',this)" style="border-right:none">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Award Search</span>
+    </button>
   </div>
   <div class="card"><div id="fields"></div>
-    <button class="gobtn" onclick="analyze()">
-      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Analyze — Points or Cash?
+    <button class="gobtn" id="main-btn" onclick="analyze()">
+      <svg viewBox="0 0 24 24" id="btn-icon"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span id="btn-label">Analyze — Points or Cash?</span>
     </button>
   </div>
   <div id="result"></div>
@@ -405,6 +445,27 @@ function benefitBlock(items){
 }
 
 // ── PILL HELPERS ───────────────────────────────────────────────────────────
+var selSCab = 'all';
+function saveApiKey(val){
+  if(val && val.trim()){
+    localStorage.setItem('seats_aero_api_key', val.trim());
+    var badge = sv('apikey-saved-badge');
+    if(badge) badge.style.display = 'inline';
+  }
+}
+function clearApiKey(){
+  localStorage.removeItem('seats_aero_api_key');
+  var inp = sv('s-apikey');
+  if(inp) inp.value = '';
+  var badge = sv('apikey-saved-badge');
+  if(badge) badge.style.display = 'none';
+}
+function setSCab(v, el){
+  selSCab = v;
+  document.querySelectorAll('.pill[data-grp="scab"]').forEach(function(p){ p.classList.remove('on'); });
+  el.classList.add('on');
+}
+
 function setPill(grp, val, el){
   document.querySelectorAll('.pill[data-grp="'+grp+'"]').forEach(function(p){ p.classList.remove('on'); });
   el.classList.add('on');
@@ -429,6 +490,17 @@ function setMode(m, el){
   selCab = 'eco'; selRt = 'dom'; selTrip = 'ow';
   buildForm();
   sv('result').innerHTML = '';
+  var lbl = sv('btn-label');
+  var ico = sv('btn-icon');
+  if(lbl){
+    if(m==='search'){
+      lbl.textContent = 'Search Award Availability';
+      ico.innerHTML = '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>';
+    } else {
+      lbl.textContent = 'Analyze — Points or Cash?';
+      ico.innerHTML = '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>';
+    }
+  }
 }
 
 // ── FORM ───────────────────────────────────────────────────────────────────
@@ -497,6 +569,64 @@ function buildForm(){
         '<div class="fl" style="margin-bottom:0"><div class="lbl">Nights</div><input type="number" id="hnights" value="1" min="1" max="30"></div>',
       '</div>'
     ].join('');
+  }
+  else if(mode==='search'){
+    f.innerHTML = [
+      '<div class="sh"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search live award availability</div>',
+      '<div class="api-key-wrap"><strong>Seats.aero API key required.</strong> Enter your API key from your seats.aero Pro account settings. It is stored only in your browser session and never sent anywhere except seats.aero.</div>',
+      '<div class="fl"><div class="lbl" style="display:flex;align-items:center;justify-content:space-between">Seats.aero API key <span id="apikey-saved-badge" style="font-size:10px;font-weight:600;color:var(--grm);display:none">&#10003; Saved in browser</span></div><div style="display:flex;gap:8px"><input type="password" id="s-apikey" placeholder="Paste your Partner-Authorization key here" style="font-family:DM Mono,monospace;font-size:13px;flex:1" oninput="saveApiKey(this.value)"><button onclick="clearApiKey()" style="padding:8px 12px;font-size:12px;font-weight:500;background:var(--rel);color:var(--re);border:1px solid #f0bcbc;border-radius:8px;cursor:pointer;white-space:nowrap;font-family:DM Sans,sans-serif">Clear</button></div></div>',
+      '<div style="font-size:11px;color:var(--tx3);margin-top:-10px;margin-bottom:4px">Your key is saved in this browser. You will not need to re-enter it next time.</div>',
+      '<div class="div"></div>',
+      '<div class="src-form">',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Origin airport(s)</div><input type="text" id="s-orig" placeholder="e.g. JFK or JFK,EWR" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Destination airport(s)</div><input type="text" id="s-dest" placeholder="e.g. LHR or LHR,CDG" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>',
+      '</div>',
+      '<div class="src-form">',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Start date</div><input type="text" id="s-start" placeholder="YYYY-MM-DD" maxlength="10"></div>',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">End date</div><input type="text" id="s-end" placeholder="YYYY-MM-DD" maxlength="10"></div>',
+      '</div>',
+      '<div class="fl"><div class="lbl">Cabin class</div><div class="pills">',
+        '<button class="pill on" data-grp="scab" onclick="setSCab(\"all\",this)">All cabins</button>',
+        '<button class="pill" data-grp="scab" onclick="setSCab(\"economy\",this)">Economy</button>',
+        '<button class="pill" data-grp="scab" onclick="setSCab(\"premium\",this)">Prem. Economy</button>',
+        '<button class="pill" data-grp="scab" onclick="setSCab(\"business\",this)">Business</button>',
+        '<button class="pill" data-grp="scab" onclick="setSCab(\"first\",this)">First Class</button>',
+      '</div></div>',
+      '<div class="fl"><div class="lbl">Loyalty programs (leave blank for all)</div>',
+        '<select id="s-prog" multiple style="height:110px;padding:6px;font-size:12.5px">',
+          '<option value="american">American AAdvantage</option>',
+          '<option value="united">United MileagePlus</option>',
+          '<option value="delta">Delta SkyMiles</option>',
+          '<option value="alaska">Alaska Mileage Plan</option>',
+          '<option value="aeroplan">Air Canada Aeroplan</option>',
+          '<option value="jetblue">JetBlue TrueBlue</option>',
+          '<option value="southwest">Southwest Rapid Rewards</option>',
+          '<option value="avianca">Avianca LifeMiles</option>',
+          '<option value="emirates">Emirates Skywards</option>',
+          '<option value="qantas">Qantas Frequent Flyer</option>',
+          '<option value="virgin_atlantic">Virgin Atlantic Flying Club</option>',
+          '<option value="flyingblue">Air France/KLM Flying Blue</option>',
+          '<option value="iberia">Iberia Plus</option>',
+          '<option value="cathay">Cathay Pacific Asia Miles</option>',
+        '</select>',
+        '<div style="font-size:11px;color:var(--tx3);margin-top:4px">Hold Ctrl/Cmd to select multiple programs</div>',
+      '</div>',
+      '<div class="fl"><div class="lbl">Filters</div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">',
+        '<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="s-direct"> Direct flights only</label>',
+        '<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer" style="display:none"><input type="checkbox" id="s-lowmiles"> Sort by lowest miles</label>',
+      '</div></div>',
+    ].join('');
+    // Load saved API key from localStorage
+    setTimeout(function(){
+      var saved = localStorage.getItem('seats_aero_api_key');
+      var inp = sv('s-apikey');
+      var badge = sv('apikey-saved-badge');
+      if(saved && inp){
+        inp.value = saved;
+        if(badge) badge.style.display = 'inline';
+      }
+    }, 30);
+    return;
   }
   else {
     var pOpts = CP.map(function(p,i){ return '<option value="'+i+'">'+p.n+'</option>'; }).join('');
@@ -658,7 +788,7 @@ function renderResult(o){
     '<div class="rbody">'+
       '<div class="mets">'+mHTML+'</div>'+
       '<div id="aiarea"><div class="aibox"><div class="ailbl">'+si('<circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>')+' AI Analysis</div>'+
-        '<div class="ald"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:4px">Analyzing…</span></div></div></div>'+
+        '<div class="ald"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:4px">Analyzing...</span></div></div></div>'+
       (o.ccHtml||'')+
       '<div class="slbl">Full breakdown</div>'+
       '<div class="bdwrap"><div class="bdgrid"><div class="bdcol"><div class="bdhead pts">Using points / cert</div>'+pRows+'</div>'+
@@ -678,7 +808,8 @@ function renderResult(o){
 function analyze(){
   if(mode==='flight') analyzeF();
   else if(mode==='hotel') analyzeH();
-  else analyzeC();
+  else if(mode==='companion') analyzeC();
+  else if(mode==='search') doSearch(0);
 }
 
 function analyzeF(){
@@ -927,6 +1058,205 @@ function analyzeC(){
     ccHtml: '',
     ai:{type:'companion',prog:prog.n,airline:prog.airline,comp:comp,taxes:prog.taxes,annual:prog.annual,benefits:prog.benefits,netFee:netFee,netVal:netVal,mult:mult,useIt:useIt,be:be,nt:prog.nt}
   });
+}
+
+// ── AWARD SEARCH ────────────────────────────────────────────────────────────
+var searchState = {data:[], cursor:0, total:0, params:{}};
+
+async function doSearch(cursor){
+  var apiKey  = (sv('s-apikey')&&sv('s-apikey').value.trim()) || localStorage.getItem('seats_aero_api_key') || '';
+  var orig    = sv('s-orig')&&sv('s-orig').value.trim();
+  var dest    = sv('s-dest')&&sv('s-dest').value.trim();
+  var start   = sv('s-start')&&sv('s-start').value.trim();
+  var end     = sv('s-end')&&sv('s-end').value.trim();
+  var direct  = sv('s-direct')&&sv('s-direct').checked;
+  var progSel = sv('s-prog');
+  var progs   = progSel ? Array.from(progSel.selectedOptions).map(function(o){return o.value;}) : [];
+
+  if(!apiKey){ alert('Please enter your Seats.aero API key.'); return; }
+  if(!orig || !dest){ alert('Please enter origin and destination airports.'); return; }
+  if(!start || !end){ alert('Please enter a start and end date.'); return; }
+
+  var btn = sv('main-btn');
+  if(btn){ btn.disabled=true; sv('btn-label').textContent='Searching…'; }
+
+  var params = {
+    origin_airport: orig,
+    destination_airport: dest,
+    start_date: start,
+    end_date: end,
+    take: 200,
+    order_by: 'date',
+  };
+  if(cursor) params.cursor = cursor;
+  if(direct) params.only_direct_flights = true;
+  if(progs.length) params.sources = progs.join(',');
+  if(selSCab && selSCab!=='all'){
+    var cabMap = {economy:'economy',premium:'premium',business:'business',first:'first'};
+    params.cabins = cabMap[selSCab]||selSCab;
+  }
+
+  searchState.params = params;
+
+  var qs = Object.keys(params).map(function(k){ return k+'='+encodeURIComponent(params[k]); }).join('&');
+  var url = 'https://seats.aero/partnerapi/search?'+qs;
+
+  try {
+    var res = await fetch(url, { headers: { 'Partner-Authorization': apiKey } });
+    if(!res.ok){
+      var err = await res.text();
+      sv('result').innerHTML = '<div class="no-results"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>API error ('+res.status+'): '+err+'</div>';
+      return;
+    }
+    var data = await res.json();
+    searchState.data   = data.data || [];
+    searchState.cursor = data.cursor || 0;
+    searchState.total  = data.count || searchState.data.length;
+    renderSearch(orig, dest, start, end);
+  } catch(e) {
+    sv('result').innerHTML = '<div class="no-results"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Request failed: '+e.message+'<br><br><small>Make sure your API key is correct and you have a Pro subscription.</small></div>';
+  } finally {
+    if(btn){ btn.disabled=false; sv('btn-label').textContent='Search Award Availability'; }
+  }
+}
+
+function cabinRows(d){
+  var rows = [];
+  var cabins = [
+    {key:'Y',name:'Economy',    cls:'eco-row', avail:'YAvailable',cost:'YMileageCost',al:'YAirlines',dir:'YDirect',seats:'YRemainingSeats'},
+    {key:'W',name:'Prem. Eco.', cls:'prem-row',avail:'WAvailable',cost:'WMileageCost',al:'WAirlines',dir:'WDirect',seats:'WRemainingSeats'},
+    {key:'J',name:'Business',   cls:'biz-row', avail:'JAvailable',cost:'JMileageCost',al:'JAirlines',dir:'JDirect',seats:'JRemainingSeats'},
+    {key:'F',name:'First',      cls:'fst-row', avail:'FAvailable',cost:'FMileageCost',al:'FAirlines',dir:'FDirect',seats:'FRemainingSeats'},
+  ];
+  cabins.forEach(function(c){
+    if(!d[c.avail]) return;
+    var miles = parseInt(d[c.cost])||0;
+    var airlines = d[c.al]||'';
+    var direct = d[c.dir];
+    var seats = d[c.seats];
+    rows.push('<div class="res-cabin '+c.cls+'">'+
+      '<div class="res-cabin-name">'+c.name+(direct?' <span style="font-size:10px;background:#1a7a45;color:#fff;padding:1px 6px;border-radius:8px;vertical-align:1px">Direct</span>':'')+'</div>'+
+      '<div class="res-cabin-info">'+
+        '<div class="res-miles">'+(miles>0?miles.toLocaleString()+' miles':'N/A')+'</div>'+
+        '<div class="res-airlines">'+(airlines||'')+(seats>0?' &middot; '+seats+' seats':'')+'</div>'+
+      '</div></div>');
+  });
+  return rows.join('');
+}
+
+var programLabels = {
+  american:'AAdvantage',united:'MileagePlus',delta:'SkyMiles',alaska:'Mileage Plan',
+  aeroplan:'Aeroplan',jetblue:'TrueBlue',southwest:'Rapid Rewards',avianca:'LifeMiles',
+  emirates:'Skywards',qantas:'Qantas FF',virgin_atlantic:'Flying Club',
+  flyingblue:'Flying Blue',iberia:'Iberia Plus',cathay:'Asia Miles'
+};
+
+function renderSearch(orig, dest, start, end){
+  var data = searchState.data;
+  var out  = sv('result');
+  if(!data.length){
+    out.innerHTML = '<div class="no-results"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>No award space found for '+orig+' &rarr; '+dest+' between '+start+' and '+end+'.<br><br><small>Try expanding your date range or adding more programs.</small></div>';
+    return;
+  }
+
+  // Summary
+  var bizCount = data.filter(function(d){ return d.JAvailable; }).length;
+  var fstCount = data.filter(function(d){ return d.FAvailable; }).length;
+  var directCount = data.filter(function(d){ return d.YDirect||d.JDirect||d.FDirect; }).length;
+
+  // Build summary + AI section
+  var html = '<div class="card" style="margin-bottom:0">'+
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">'+
+      '<div>'+
+        '<div style="font-size:20px;font-weight:600;color:var(--tx)">'+orig+' &rarr; '+dest+'</div>'+
+        '<div style="font-size:13px;color:var(--tx3);margin-top:3px">'+start+' to '+end+' &nbsp;·&nbsp; '+data.length+' result'+(data.length!==1?'s':'')+' found</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+        (bizCount?'<span style="background:var(--orange-light,#fdf0e4);color:#6a2a0a;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px">'+bizCount+' Business</span>':'')+
+        (fstCount?'<span style="background:var(--pul);color:var(--pu);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px">'+fstCount+' First</span>':'')+
+        (directCount?'<span style="background:var(--grl);color:var(--grm);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px">'+directCount+' Direct</span>':'')+
+      '</div>'+
+    '</div>'+
+    '<div id="search-ai-area"><div class="aibox">'+
+      '<div class="ailbl">'+
+        '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--pu);fill:none;stroke-width:2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>'+
+        ' AI Analysis'+
+      '</div>'+
+      '<div class="ald"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:4px">Analyzing availability…</span></div>'+
+    '</div></div>'+
+  '</div>';
+
+  html += '<div class="res-grid" style="margin-top:16px">';
+  data.forEach(function(d){
+    var prog = programLabels[d.Source]||d.Source;
+    var dateStr = d.Date ? d.Date.substring(0,10) : '';
+    var updatedHrs = d.UpdatedAt ? Math.round((Date.now()-new Date(d.UpdatedAt).getTime())/3600000) : null;
+    var rows = cabinRows(d);
+    if(!rows) return;
+    html += '<div class="res-card">'+
+      '<div class="src-prog">'+prog+'</div>'+
+      '<div class="res-date">'+dateStr+'</div>'+
+      '<div class="res-route">'+
+        (d.Route?d.Route.OriginAirport+' → '+d.Route.DestinationAirport:'')+'</div>'+
+      '<div class="res-cabins">'+rows+'</div>'+
+      (updatedHrs!==null?'<div class="res-updated">Updated '+updatedHrs+'h ago</div>':'')+
+    '</div>';
+  });
+  html += '</div>';
+
+  // Pagination
+  if(searchState.cursor){
+    html += '<div class="pg-row"><button class="pg-btn" onclick="doSearch('+searchState.cursor+')">Load more results →</button></div>';
+  }
+
+  out.innerHTML = html;
+
+  // Trigger AI analysis
+  fetchSearchAI(data, orig, dest, start, end);
+}
+
+async function fetchSearchAI(data, orig, dest, start, end){
+  var bizDates = data.filter(function(d){return d.JAvailable;}).map(function(d){
+    return d.Date.substring(0,10)+' ('+d.Source+', '+(d.JMileageCost||'?')+' miles'+(d.JDirect?' direct':'')+')';
+  }).slice(0,8);
+  var fstDates = data.filter(function(d){return d.FAvailable;}).map(function(d){
+    return d.Date.substring(0,10)+' ('+d.Source+', '+(d.FMileageCost||'?')+' miles'+(d.FDirect?' direct':'')+')';
+  }).slice(0,8);
+  var ecoDates = data.filter(function(d){return d.YAvailable;}).map(function(d){
+    return d.Date.substring(0,10)+' ('+(d.YMileageCost||'?')+' miles)';
+  }).slice(0,5);
+  var programs = [...new Set(data.map(function(d){return d.Source;}))];
+  var lowestBiz = data.filter(function(d){return d.JAvailable&&parseInt(d.JMileageCost)>0;})
+    .sort(function(a,b){return parseInt(a.JMileageCost)-parseInt(b.JMileageCost);})[0];
+  var lowestFst = data.filter(function(d){return d.FAvailable&&parseInt(d.FMileageCost)>0;})
+    .sort(function(a,b){return parseInt(a.FMileageCost)-parseInt(b.FMileageCost);})[0];
+
+  var prompt = 'You are an expert travel rewards analyst. A user searched for award flights from '+orig+' to '+dest+' between '+start+' and '+end+'. Here is the availability data:\n\n'+
+    'Programs with availability: '+programs.join(', ')+'\n'+
+    'Total results: '+data.length+'\n'+
+    (bizDates.length?'Business class dates: '+bizDates.join('; ')+'\n':'')+
+    (fstDates.length?'First class dates: '+fstDates.join('; ')+'\n':'')+
+    (ecoDates.length?'Economy dates: '+ecoDates.join('; ')+'\n':'')+
+    (lowestBiz?'Lowest business class: '+lowestBiz.JMileageCost+' miles on '+lowestBiz.Date.substring(0,10)+' via '+lowestBiz.Source+(lowestBiz.JDirect?' (direct)':'')+'\n':'')+
+    (lowestFst?'Lowest first class: '+lowestFst.FMileageCost+' miles on '+lowestFst.Date.substring(0,10)+' via '+lowestFst.Source+(lowestFst.FDirect?' (direct)':'')+'\n':'')+
+    '\nProvide a 4-5 sentence expert analysis: which program and date offers the best value and why, highlight any direct flight sweet spots, note any surprisingly low mileage costs, and give one specific booking recommendation. Reference actual dates and mileage amounts. No bullets or headers.';
+
+  var apiKey = sv('s-apikey')&&sv('s-apikey').value.trim();
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:450,messages:[{role:'user',content:prompt}]})
+    });
+    var d2 = await res.json();
+    var text = d2.content&&d2.content.find(function(b){return b.type==='text';});
+    var box = sv('search-ai-area');
+    if(box&&text&&text.text){
+      box.innerHTML = '<div class="aibox"><div class="ailbl">'+
+        '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--pu);fill:none;stroke-width:2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>'+
+        ' AI Analysis — '+orig+' &rarr; '+dest+'</div>'+
+        '<div class="aitxt">'+text.text.replace(/\n\n/g,'<br><br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')+'</div></div>';
+    }
+  } catch(e){ /* silent */ }
 }
 
 // ── AI ─────────────────────────────────────────────────────────────────────
