@@ -227,20 +227,24 @@ var PA = {
 };
 
 // ── FLIGHT PROGRAMS ────────────────────────────────────────────────────────
+// cpp values = realistic BREAKEVEN benchmark by cabin
+// Based on: TPG, Frequent Miler, NerdWallet 2025 valuations
+// eco = typical domestic economy (often poor value)
+// biz/fst = where points deliver outsized value vs cash
 var FP = [
-  {id:'delta',n:'Delta SkyMiles',cpp:{eco:1.2,prem:1.4,biz:2.2,fst:2.8},
+  {id:'delta',n:'Delta SkyMiles',cpp:{eco:1.0,prem:1.2,biz:1.8,fst:2.5},
    earn:{None:5,Silver:7,Gold:8,Platinum:9,Diamond:11},
    sts:['None','Silver','Gold','Platinum','Diamond'],
    sp:{None:[],Silver:['Priority boarding','25% miles bonus'],Gold:['Upgrades (standby domestic)','Priority boarding zone 3'],Platinum:['Confirmed upgrades domestic 72hr','Sky Club intl access'],Diamond:['Confirmed upgrades all routes','Sky Club unlimited','Choice benefit']}},
-  {id:'american',n:'American AAdvantage',cpp:{eco:1.5,prem:1.7,biz:2.5,fst:3.0},
+  {id:'american',n:'American AAdvantage',cpp:{eco:1.2,prem:1.4,biz:2.0,fst:2.8},
    earn:{None:5,Gold:7,Platinum:8,'Platinum Pro':9,'Executive Platinum':11},
    sts:['None','Gold','Platinum','Platinum Pro','Executive Platinum'],
    sp:{None:[],Gold:['Priority boarding','Preferred seats'],Platinum:['Upgrades domestic 72hr','Same-day standby free'],'Platinum Pro':['Confirmed upgrades 72hr domestic + intl','500-mile upgrades'],'Executive Platinum':['8 systemwide upgrades/yr','Confirmed upgrades','Admirals Club access']}},
-  {id:'united',n:'United MileagePlus',cpp:{eco:1.35,prem:1.6,biz:2.4,fst:2.8},
+  {id:'united',n:'United MileagePlus',cpp:{eco:1.1,prem:1.3,biz:1.8,fst:2.5},
    earn:{None:5,Silver:7,Gold:8,Platinum:9,'1K':11},
    sts:['None','Silver','Gold','Platinum','1K'],
    sp:{None:[],Silver:['Economy Plus seating','Priority boarding'],Gold:['Complimentary Economy Plus','Upgrades select domestic'],Platinum:['Upgrade waitlist priority','United Club passes 2/yr'],'1K':['Confirmed upgrades','United Club unlimited']}},
-  {id:'alaska',n:'Alaska Mileage Plan',cpp:{eco:1.8,prem:2.0,biz:2.8,fst:3.2},
+  {id:'alaska',n:'Alaska Mileage Plan',cpp:{eco:1.3,prem:1.6,biz:2.2,fst:2.8},
    earn:{None:5,MVP:6,'MVP Gold':8,'MVP Gold 75K':10},
    sts:['None','MVP','MVP Gold','MVP Gold 75K'],
    sp:{None:[],MVP:['Priority boarding','Companion fare discount'],
@@ -249,23 +253,23 @@ var FP = [
    earn:{None:6,'A-List':7.5,'A-List Preferred':8.1,'Companion Pass':6},
    sts:['None','A-List','A-List Preferred','Companion Pass'],
    sp:{None:[],'A-List':['Priority boarding A1-15','25% pts bonus'],'A-List Preferred':['Free inflight WiFi','35% pts bonus'],'Companion Pass':['Companion flies free (taxes only) all year']}},
-  {id:'jetblue',n:'JetBlue TrueBlue',cpp:{eco:1.3,prem:1.5,biz:2.2,fst:null},
+  {id:'jetblue',n:'JetBlue TrueBlue',cpp:{eco:1.0,prem:1.2,biz:1.6,fst:null},
    earn:{None:3,'Mosaic 1':4,'Mosaic 2':5,'Mosaic 3':5,'Mosaic 4':6},
    sts:['None','Mosaic 1','Mosaic 2','Mosaic 3','Mosaic 4'],
    sp:{None:[],'Mosaic 1':['Priority boarding','Free Even More Space seats'],'Mosaic 2':['Complimentary cocktails'],'Mosaic 3':['Dedicated Mosaic support'],'Mosaic 4':['Annual companion cert','Highest upgrade priority']}},
-  {id:'ba_avios',n:'British Airways Avios',cpp:{eco:1.5,prem:1.8,biz:2.5,fst:3.0},
+  {id:'ba_avios',n:'British Airways Avios',cpp:{eco:1.0,prem:1.3,biz:1.8,fst:2.5},
    earn:{None:3,Bronze:4,Silver:6,Gold:8},
    sts:['None','Bronze','Silver','Gold'],
    sp:{None:[],Bronze:['Priority boarding'],Silver:['Lounge access Heathrow','2 upgrade vouchers'],Gold:['First Wing check-in','Concorde Room','4 upgrade vouchers/yr']}},
-  {id:'flying_blue',n:'Air France/KLM Flying Blue',cpp:{eco:1.4,prem:1.7,biz:2.3,fst:3.0},
+  {id:'flying_blue',n:'Air France/KLM Flying Blue',cpp:{eco:1.1,prem:1.3,biz:1.8,fst:2.5},
    earn:{None:4,Explorer:5,Silver:6,Gold:7,Platinum:9},
    sts:['None','Explorer','Silver','Gold','Platinum'],
    sp:{None:[],Explorer:['Priority boarding'],Silver:['Lounge access long-haul','Extra baggage'],Gold:['Lounge access all routes','Upgrade vouchers 2/yr'],Platinum:['Top upgrade priority','Concierge service']}},
-  {id:'emirates',n:'Emirates Skywards',cpp:{eco:1.1,prem:1.4,biz:1.6,fst:2.0},
+  {id:'emirates',n:'Emirates Skywards',cpp:{eco:0.9,prem:1.1,biz:1.4,fst:1.8},
    earn:{None:4,Blue:4,Silver:6,Gold:8,Platinum:10},
    sts:['None','Blue','Silver','Gold','Platinum'],
    sp:{None:[],Blue:[],Silver:['Priority check-in','Extra baggage 5kg','First Class awards accessible (May 2025+)'],Gold:['Business lounge access','Extra baggage 10kg'],Platinum:['Chauffeur service','First Class lounge','Extra baggage 20kg']}},
-  {id:'virgin',n:'Virgin Atlantic Flying Club',cpp:{eco:1.5,prem:1.8,biz:2.5,fst:null},
+  {id:'virgin',n:'Virgin Atlantic Flying Club',cpp:{eco:1.1,prem:1.3,biz:1.8,fst:null},
    earn:{None:3,Red:3,Silver:5,Gold:7},
    sts:['None','Red','Silver','Gold'],
    sp:{None:[],Red:[],Silver:['Priority boarding','Lounge access VS long-haul'],Gold:['Upper Class lounge all','Companion upgrade voucher']}},
@@ -275,7 +279,7 @@ var FP = [
    earn:{None:0},sts:['None'],sp:{None:[]}},
   {id:'bilt',n:'Bilt Points',cpp:{eco:2.0,prem:2.2,biz:2.5,fst:2.8},
    earn:{None:0},sts:['None'],sp:{None:[]}},
-  {id:'lifemiles',n:'Avianca LifeMiles',cpp:{eco:1.3,prem:1.5,biz:2.2,fst:null},
+  {id:'lifemiles',n:'Avianca LifeMiles',cpp:{eco:1.1,prem:1.3,biz:1.8,fst:null},
    earn:{None:3,Silver:4,Gold:5,Diamond:6},
    sts:['None','Silver','Gold','Diamond'],
    sp:{None:[],Silver:['Priority check-in'],Gold:['Lounge access'],Diamond:['Suite access','Companion upgrades']}}
@@ -348,27 +352,27 @@ var CC = [
   {id:'cap1_v',   n:'Capital One Venture',              fl:2,  ht:2,  cpp:1.85, cur:'Capital One Miles',  nt:'2x everywhere. Same transfer partners as Venture X at lower fee.'},
   {id:'bilt',     n:'Bilt Mastercard',                  fl:2,  ht:2,  cpp:2.0,  cur:'Bilt Points',        nt:'2x travel, 3x dining, 1x rent (no annual fee!). Transfers 1:1 to United, AA, Alaska, Hyatt, Air France, Virgin Atlantic.'},
   {id:'csr_strata',n:'Citi Strata Premier',             fl:3,  ht:3,  cpp:1.7,  cur:'Citi ThankYou',      nt:'3x on air, hotels, restaurants, groceries, gas. Transfers to Air France, Turkish, Singapore, Avianca, Cathay, Virgin Atlantic.'},
-  {id:'unit_exp', n:'United Explorer Card',             fl:2,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'2x United + hotels. 2 United Club passes/yr. Free first bag.'},
-  {id:'unit_quest',n:'United Quest Card',               fl:3,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'3x United, 2x travel/dining. $125 United purchase credit.'},
-  {id:'unit_club',n:'United Club Infinite Card',        fl:4,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'4x United, 2x travel. United Club membership included ($700 value).'},
+  {id:'unit_exp', n:'United Explorer Card',             fl:2,  flBase:1, flChain:'united', ht:2, cpp:1.35, cur:'United Miles',       nt:'2x United flights only, 1x on other airlines. 2x hotels. 2 United Club passes/yr. Free first bag.'},
+  {id:'unit_quest',n:'United Quest Card',               fl:3,  flBase:1, flChain:'united', ht:2, cpp:1.35, cur:'United Miles',       nt:'3x United flights only, 1x on other airlines. 2x travel/dining. $125 United purchase credit.'},
+  {id:'unit_club',n:'United Club Infinite Card',        fl:4,  flBase:2, flChain:'united', ht:2, cpp:1.35, cur:'United Miles',       nt:'4x United flights only, 2x on other airlines/travel. United Club membership included ($700 value).'},
   {id:'hyatt_c',  n:'World of Hyatt Card',              fl:1,  ht:4,  htBase:1, htChain:'hyatt',   cpp:1.7,  cur:'Hyatt Points',       nt:'4x Hyatt properties only, 1x at non-Hyatt hotels. 2x dining/fitness/transit. 1 Cat 1-4 free night cert/yr.'},
   {id:'marriott_b',n:'Marriott Bonvoy Boundless',       fl:1,  ht:6,  htBase:2, htChain:'marriott', cpp:0.8,  cur:'Marriott Points',    nt:'6x Marriott properties only, 2x at non-Marriott hotels. Free night cert (Cat 1-5)/yr. 15 Elite Night Credits/yr.'},
   {id:'marriott_br',n:'Marriott Bonvoy Brilliant (Amex)',fl:1, ht:6,  htBase:2, htChain:'marriott', cpp:0.8,  cur:'Marriott Points',    nt:'6x Marriott properties only, 2x at non-Marriott hotels. $300 dining credit, $100 property credit, 85k free night cert/yr, Priority Pass.'},
   {id:'hilton_a', n:'Hilton Honors Aspire (Amex)',      fl:3,  ht:14, htBase:3, htChain:'hilton',  cpp:0.6,  cur:'Hilton Points',      nt:'14x Hilton properties only, 3x at non-Hilton hotels. 7x restaurants/flights. Free uncapped night cert (Waldorf, Conrad). Hilton Diamond status automatically.'},
   {id:'hilton_s', n:'Hilton Honors Surpass (Amex)',     fl:3,  ht:12, htBase:3, htChain:'hilton',  cpp:0.6,  cur:'Hilton Points',      nt:'12x Hilton properties only, 3x at non-Hilton hotels. 6x restaurants/groceries/gas. Free uncapped night cert. Hilton Gold status automatically.'},
-  {id:'delta_res',n:'Delta SkyMiles Reserve (Amex)',    fl:3,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'3x Delta flights. Sky Club access (15 visits). Annual companion cert (first/Delta One). 15k MQMs on $30k spend.'},
-  {id:'delta_plat',n:'Delta SkyMiles Platinum (Amex)',  fl:2,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'2x Delta + hotels/restaurants. Annual companion cert (main cabin). First checked bag free.'},
-  {id:'delta_gold',n:'Delta SkyMiles Gold (Amex)',      fl:2,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'2x Delta + restaurants/supermarkets. First checked bag free. Priority boarding.'},
-  {id:'aa_exec_c',n:'Citi AAdvantage Executive',        fl:2,  ht:2,  cpp:1.5,  cur:'AA Miles',           nt:'2x AA. Admirals Club membership ($850 value). Annual companion cert. Global Entry/TSA credit.'},
-  {id:'aa_plat_c',n:'Citi AAdvantage Platinum Select',  fl:2,  ht:1,  cpp:1.5,  cur:'AA Miles',           nt:'2x AA/dining/gas. Free first bag. Preferred boarding.'},
-  {id:'alaska_c', n:'Alaska Airlines Visa Signature',   fl:3,  ht:1,  cpp:1.8,  cur:'Alaska Miles',       nt:'3x Alaska. Annual $99 companion fare + taxes. Free first checked bag.'},
-  {id:'alaska_bc',n:'Alaska Airlines Visa Business',    fl:3,  ht:1,  cpp:1.8,  cur:'Alaska Miles',       nt:'3x Alaska. Same companion fare benefit as personal card.'},
-  {id:'sw_pri',   n:'Southwest Rapid Rewards Priority', fl:3,  ht:2,  cpp:1.5,  cur:'SW Points',          nt:'3x Southwest, 2x hotel/car. $75 travel credit, 7,500 bonus pts/yr. Great for Companion Pass.'},
-  {id:'sw_plus',  n:'Southwest Rapid Rewards Plus',     fl:2,  ht:2,  cpp:1.5,  cur:'SW Points',          nt:'2x Southwest. 3,000 bonus pts/yr. Entry-level SW card for Companion Pass pursuit.'},
-  {id:'jb_plus',  n:'JetBlue Plus Card',                fl:6,  ht:2,  cpp:1.3,  cur:'JetBlue Points',     nt:'6x JetBlue, 2x dining/grocery. $100 statement credit. Note: 6x only on JetBlue purchases.'},
-  {id:'virgin_r', n:'Virgin Atlantic World Elite (BofA)',fl:3, ht:1,  cpp:1.5,  cur:'Virgin Points',      nt:'3x Virgin Atlantic + Delta flights, 1.5x everywhere else. Flying Club Silver after first purchase.'},
-  {id:'avi_red',  n:'Barclays AAdvantage Aviator Red',  fl:2,  ht:1,  cpp:1.5,  cur:'AA Miles',           nt:'2x AA. Companion cert after $20k spend ($99 + taxes). Free first bag.'},
-  {id:'avi_sil',  n:'Barclays AAdvantage Aviator Silver',fl:3, ht:2,  cpp:1.5,  cur:'AA Miles',           nt:'3x AA, 2x hotels/car. Companion cert after $20k spend.'},
+  {id:'delta_res',n:'Delta SkyMiles Reserve (Amex)',    fl:3,  flBase:1, flChain:'delta', ht:1, cpp:1.2,  cur:'Delta Miles',        nt:'3x Delta flights only, 1x on other airlines. Sky Club access (15 visits). Annual companion cert (first/Delta One). 15k MQMs on $30k spend.'},
+  {id:'delta_plat',n:'Delta SkyMiles Platinum (Amex)',  fl:2,  flBase:1, flChain:'delta', ht:1, cpp:1.2,  cur:'Delta Miles',        nt:'2x Delta flights only, 1x on other airlines. 2x hotels/restaurants. Annual companion cert (main cabin). First checked bag free.'},
+  {id:'delta_gold',n:'Delta SkyMiles Gold (Amex)',      fl:2,  flBase:1, flChain:'delta', ht:1, cpp:1.2,  cur:'Delta Miles',        nt:'2x Delta flights only, 1x on other airlines. 2x restaurants/supermarkets. First checked bag free. Priority boarding.'},
+  {id:'aa_exec_c',n:'Citi AAdvantage Executive',        fl:2,  flBase:1, flChain:'american', ht:2, cpp:1.5, cur:'AA Miles',          nt:'2x AA flights only, 1x on other airlines. Admirals Club membership ($850 value). Annual companion cert. Global Entry/TSA credit.'},
+  {id:'aa_plat_c',n:'Citi AAdvantage Platinum Select',  fl:2,  flBase:1, flChain:'american', ht:1, cpp:1.5, cur:'AA Miles',          nt:'2x AA flights only, 1x on other airlines. 2x dining/gas. Free first bag. Preferred boarding.'},
+  {id:'alaska_c', n:'Alaska Airlines Visa Signature',   fl:3,  flBase:1, flChain:'alaska', ht:1, cpp:1.8,  cur:'Alaska Miles',       nt:'3x Alaska flights only, 1x on other airlines. Annual $99 companion fare + taxes. Free first checked bag.'},
+  {id:'alaska_bc',n:'Alaska Airlines Visa Business',    fl:3,  flBase:1, flChain:'alaska', ht:1, cpp:1.8,  cur:'Alaska Miles',       nt:'3x Alaska flights only, 1x on other airlines. Same companion fare benefit as personal card.'},
+  {id:'sw_pri',   n:'Southwest Rapid Rewards Priority', fl:3,  flBase:1, flChain:'southwest', ht:2, cpp:1.5, cur:'SW Points',         nt:'3x Southwest flights only, 1x on other airlines. 2x hotel/car. $75 travel credit, 7,500 bonus pts/yr. Great for Companion Pass.'},
+  {id:'sw_plus',  n:'Southwest Rapid Rewards Plus',     fl:2,  flBase:1, flChain:'southwest', ht:2, cpp:1.5, cur:'SW Points',         nt:'2x Southwest flights only, 1x on other airlines. 3,000 bonus pts/yr. Entry-level SW card for Companion Pass pursuit.'},
+  {id:'jb_plus',  n:'JetBlue Plus Card',                fl:6,  flBase:1, flChain:'jetblue', ht:2, cpp:1.3,  cur:'JetBlue Points',     nt:'6x JetBlue purchases only, 1x on other airlines. 2x dining/grocery. $100 statement credit.'},
+  {id:'virgin_r', n:'Virgin Atlantic World Elite (BofA)',fl:3, flBase:1, flChain:'virgin', ht:1, cpp:1.5,  cur:'Virgin Points',      nt:'3x Virgin Atlantic + Delta flights only, 1.5x everywhere else. Flying Club Silver after first purchase.'},
+  {id:'avi_red',  n:'Barclays AAdvantage Aviator Red',  fl:2,  flBase:1, flChain:'american', ht:1, cpp:1.5, cur:'AA Miles',          nt:'2x AA flights only, 1x on other airlines. Companion cert after $20k spend ($99 + taxes). Free first bag.'},
+  {id:'avi_sil',  n:'Barclays AAdvantage Aviator Silver',fl:3, flBase:1, flChain:'american', ht:2, cpp:1.5, cur:'AA Miles',          nt:'3x AA flights only, 1x on other airlines. 2x hotels/car. Companion cert after $20k spend.'},
   {id:'bofa_pr',  n:'BofA Premium Rewards',             fl:2,  ht:2,  cpp:1.0,  cur:'BofA Points',        nt:'2x travel/dining. $100 airline incidental credit. Value increases 25-75% with Preferred Rewards.'},
   {id:'wf_aj',    n:'Wells Fargo Autograph Journey',    fl:4,  ht:4,  cpp:1.0,  cur:'WF Rewards',         nt:'4x airlines + hotels, 3x other travel/restaurants. Transfers to Air France, BA, Singapore, Turkish.'},
   {id:'usb_alt',  n:'US Bank Altitude Reserve',         fl:3,  ht:3,  cpp:1.5,  cur:'Real-Time Rewards',  nt:'3x travel (incl. mobile pay). Points worth 1.5 cents toward travel. $325 travel credit.'}
@@ -406,8 +410,8 @@ function setPill(grp, val, el){
   el.classList.add('on');
   if(grp==='status') selSt[mode]=val;
   else if(grp==='cab') selCab=val;
-  else if(grp==='route') selRt=val;
-  else if(grp==='trip') selTrip=val;
+  else if(grp==='route'){ selRt=val; setTimeout(updateFeesField,10); }
+  else if(grp==='trip') { selTrip=val; setTimeout(updateFeesField,10); }
 }
 
 function makeStatPills(stList, grp, def){
@@ -465,6 +469,13 @@ function buildForm(){
       '<div class="g2">',
         '<div class="fl" style="margin-bottom:0"><div class="lbl">Miles required (award)</div><input type="number" id="fpts" placeholder="e.g. 30,000" min="0"></div>',
         '<div class="fl" style="margin-bottom:0"><div class="lbl">Cash ticket price ($)</div><input type="number" id="fcash" placeholder="e.g. 650" min="0"></div>',
+      '</div>',
+      '<div class="fl" style="margin-bottom:0;margin-top:14px">',
+        '<div class="lbl" style="display:flex;align-items:center;justify-content:space-between">',
+          '<span>Award taxes &amp; fees ($) <span id="fees-auto-label" style="font-size:10px;color:var(--grm);font-weight:600;margin-left:6px;font-family:DM Mono,monospace"></span></span>',
+          '<span style="font-size:10px;color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0">Auto-filled from airline selection — edit if you know the exact amount</span>',
+        '</div>',
+        '<input type="number" id="ffees" placeholder="e.g. 5.60" min="0" step="0.01" style="max-width:200px">',
       '</div>'
     ].join('');
     fillAirlines(0);
@@ -526,6 +537,7 @@ function fillAirlines(idx){
   });
   if(partners.length>0){ sel.value = partners[0]; }
   onAlChange();
+  updateFeesField();
 }
 
 function onAlChange(){
@@ -538,6 +550,26 @@ function onAlChange(){
     note.style.display = 'block';
   } else {
     note.style.display = 'none';
+  }
+  updateFeesField();
+}
+
+function updateFeesField(){
+  var feeInput = sv('ffees');
+  var feeLabel = sv('fees-auto-label');
+  if(!feeInput) return;
+  var id    = sv('fal')&&sv('fal').value;
+  var route = selRt||'dom';
+  var trip  = selTrip||'ow';
+  var alData = id&&AF[id];
+  var base = 5.60;
+  if(alData){
+    base = route==='dom'?(alData.dom||5.60):route==='short'?(alData.sh||80):(alData.lo||100);
+  }
+  var fees = trip==='rt' ? base*2 : base;
+  feeInput.value = fees.toFixed(2);
+  if(feeLabel){
+    feeLabel.textContent = '(auto: '+alData.n.split(' (')[0]+', '+(trip==='ow'?'one-way':'round-trip')+')';
   }
 }
 
@@ -555,18 +587,24 @@ function syncCP(){
 }
 
 // ── CARD COMPARISON ────────────────────────────────────────────────────────
-function cardCompare(spend, type, selIdx, hotelProgId){
-  function htMult(c){
-    if(type!=='hotel') return c.fl||0;
-    // Chain bonus only applies to matching hotel program
-    if(c.htChain && c.htChain===hotelProgId) return c.ht||0;
-    if(c.htChain && c.htChain!==hotelProgId) return c.htBase||c.ht||0;
-    return c.ht||0; // general travel cards apply full rate
+function cardCompare(spend, type, selIdx, chainId){
+  function getEffMult(c){
+    if(type==='hotel'){
+      // Co-branded hotel cards: bonus only at own chain
+      if(c.htChain && c.htChain===chainId) return c.ht||0;
+      if(c.htChain && c.htChain!==chainId) return c.htBase||1;
+      return c.ht||0;
+    } else {
+      // Co-branded airline cards: bonus only on own airline
+      if(c.flChain && c.flChain===chainId) return c.fl||0;
+      if(c.flChain && c.flChain!==chainId) return c.flBase||1;
+      return c.fl||0;
+    }
   }
   var sel = CC[selIdx];
-  var selVal = (spend * htMult(sel) * sel.cpp) / 100;
+  var selVal = (spend * getEffMult(sel) * sel.cpp) / 100;
   var ranked = CC.map(function(c,i){
-    var mult = htMult(c);
+    var mult = getEffMult(c);
     return {i:i,c:c,mult:mult,val:(spend*mult*c.cpp)/100,pts:Math.round(spend*mult)};
   }).filter(function(r){ return r.val>0; }).sort(function(a,b){ return b.val-a.val; });
   var best = ranked[0];
@@ -592,7 +630,7 @@ function cardCompare(spend, type, selIdx, hotelProgId){
       '<div class="ccbox-inner"><div class="ccbox-hd best">You already have the best card for this purchase</div>'+rows+note+'</div></div>';
   } else {
     var diff = (best.val-selVal).toFixed(2);
-    var extra = (ranked[0].pts - Math.round(spend*htMult(sel))).toLocaleString();
+    var extra = (ranked[0].pts - Math.round(spend*getEffMult(sel))).toLocaleString();
     return '<div class="ccbox"><div class="slbl">Best credit card for this purchase</div>'+
       '<div class="ccbox-inner"><div class="ccbox-hd better">Better card found — <strong>'+best.c.n+'</strong> earns <strong>$'+diff+' more</strong> (+'+extra+' '+best.c.cur+')</div>'+rows+note+'</div></div>';
   }
@@ -657,9 +695,12 @@ function analyzeF(){
 
   if(!pts||!cash){ alert('Please enter miles required and cash price.'); return; }
 
-  // Fees
+  // Fees — use user-entered value if available, else auto-calculate
   var baseFee = alData ? (route==='dom'?(alData.dom||5.60):route==='short'?(alData.sh||80):(alData.lo||100)) : (route==='dom'?5.60:route==='short'?80:100);
-  var fees = trip==='rt' ? baseFee*2 : baseFee;
+  var autoFees = trip==='rt' ? baseFee*2 : baseFee;
+  var userFees = parseFloat(sv('ffees')&&sv('ffees').value);
+  var fees = (!isNaN(userFees) && userFees>=0) ? userFees : autoFees;
+  var userOverrode = Math.abs(fees - autoFees) > 0.01;
   var lvl = alData ? alData.lvl : 'moderate';
   var feeNote = alData ? alData.nt : 'Estimated based on route type.';
   var alName = alData ? alData.n : prog.n;
@@ -686,14 +727,15 @@ function analyzeF(){
 
   // Benefits
   var bens = [];
+  var overrideNote = userOverrode ? ' (manually entered — auto-estimate was $'+autoFees.toFixed(2)+')' : '';
   if(lvl==='very_high'){
-    bens.push({t:'neg',title:'Very high award surcharges: $'+fees.toFixed(2)+' ('+trip+')',desc:feeNote,tag:'-$'+fees.toFixed(2)+' cash'});
+    bens.push({t:'neg',title:'Very high award surcharges: $'+fees.toFixed(2)+overrideNote,desc:feeNote,tag:'-$'+fees.toFixed(2)+' cash out of pocket'});
   } else if(lvl==='high'){
-    bens.push({t:'neg',title:'High carrier surcharges: $'+fees.toFixed(2)+' on '+alName,desc:feeNote,tag:'-$'+fees.toFixed(2)});
+    bens.push({t:'neg',title:'High carrier surcharges: $'+fees.toFixed(2)+' on '+alName+overrideNote,desc:feeNote,tag:'-$'+fees.toFixed(2)});
   } else if(lvl==='low'||lvl==='none'){
-    bens.push({t:'pos',title:'Low/no surcharges on '+alName,desc:feeNote,tag:'Only $'+fees.toFixed(2)+' taxes'});
+    bens.push({t:'pos',title:'Low fees: $'+fees.toFixed(2)+' on '+alName+overrideNote,desc:feeNote,tag:'Only $'+fees.toFixed(2)+' taxes'});
   } else {
-    bens.push({t:'neu',title:'Moderate fees: $'+fees.toFixed(2)+' on '+alName,desc:feeNote,tag:'$'+fees.toFixed(2)});
+    bens.push({t:'neu',title:'Moderate fees: $'+fees.toFixed(2)+' on '+alName+overrideNote,desc:feeNote,tag:'$'+fees.toFixed(2)});
   }
   if(cab==='biz'||cab==='fst'){
     bens.push({t:'gld',title:cabNames[cab]+' — ideal use of points',desc:'Cash '+cabNames[cab]+' fares run $2,000-$10,000+ while awards cost a fraction. At '+effCpp.toFixed(2)+'c/pt your miles deliver maximum value here.',tag:cabCpp+'c avg cpp'});
@@ -712,16 +754,17 @@ function analyzeF(){
   var headline = usePoints
     ? 'Points save you <span style="color:var(--grm)">$'+Math.abs(savings).toFixed(0)+'</span>'
     : 'Pay cash — save your miles';
+  var cppLabel = effCpp>=1.8?'excellent':effCpp>=1.3?'good':effCpp>=0.9?'fair':'poor';
   var sub = usePoints
-    ? pts.toLocaleString()+' miles worth <strong>$'+ptVal.toFixed(0)+'</strong> at '+cabCpp+'c/pt. Cash costs $'+cashCost.toFixed(0)+' after earning back <strong>'+milesEarned.toLocaleString()+' miles + '+ccPts.toLocaleString()+' '+(card.cur||'pts')+'</strong> ($'+totalEarned.toFixed(0)+'). True award cost ($'+awardCost.toFixed(0)+') vs net cash ($'+cashCost.toFixed(0)+'): points save <strong>$'+Math.abs(savings).toFixed(0)+'</strong>.'
-    : 'At '+effCpp.toFixed(2)+'c/mile here vs '+cabCpp+'c average, the true award cost ($'+awardCost.toFixed(0)+') exceeds cash ($'+cashCost.toFixed(0)+'). Cash earns back <strong>'+milesEarned.toLocaleString()+' miles + '+ccPts.toLocaleString()+' '+(card.cur||'pts')+'</strong> ($'+totalEarned.toFixed(0)+'). Save points for '+((cab==='eco')?' business/first where cpp hits 3-5c':'a higher-value route')+'.';
+    ? pts.toLocaleString()+' miles worth <strong>$'+ptVal.toFixed(0)+'</strong> at <strong>'+effCpp.toFixed(2)+'c/pt</strong> — a <strong>'+cppLabel+' redemption</strong> for '+cabNames[cab]+' on '+prog.n+'. Cash costs $'+cashCost.toFixed(0)+' after earning back <strong>'+milesEarned.toLocaleString()+' miles + '+ccPts.toLocaleString()+' '+(card.cur||'pts')+'</strong> ($'+totalEarned.toFixed(0)+'). Points save <strong>$'+Math.abs(savings).toFixed(0)+'</strong>.'
+    : 'At <strong>'+effCpp.toFixed(2)+'c/mile</strong> this is a <strong>'+cppLabel+' redemption</strong> for '+prog.n+' '+cabNames[cab]+'. Our benchmark for this cabin is '+cabCpp+'c. The true award cost ($'+awardCost.toFixed(0)+') exceeds paying cash ($'+cashCost.toFixed(0)+'). Cash earns back <strong>'+milesEarned.toLocaleString()+' miles + '+ccPts.toLocaleString()+' '+(card.cur||'pts')+'</strong> ($'+totalEarned.toFixed(0)+'). Save points for a higher-value route.';
 
   renderResult({
     pts: usePoints,
     headline: headline,
     sub: sub,
     metrics:[
-      {v:effCpp.toFixed(2)+'c',l:'Effective cpp',cls:effCpp>=1.5?'gr':effCpp<1.0?'re':''},
+      {v:effCpp.toFixed(2)+'c',l:'Value per mile at this redemption',cls:effCpp>=1.5?'gr':effCpp<1.0?'re':''},
       {v:'$'+ptVal.toFixed(0),l:'Points value',cls:''},
       {v:(savings>=0?'+':'')+' $'+Math.abs(savings).toFixed(0),l:usePoints?'Net savings':'Lost vs cash',cls:usePoints?'gr':'re'}
     ],
@@ -740,7 +783,7 @@ function analyzeF(){
       ]
     },
     bens: bens,
-    ccHtml: card.cpp>0 ? cardCompare(cash,'flight',ci) : '',
+    ccHtml: card.cpp>0 ? cardCompare(cash,'flight',ci,prog.id) : '',
     ai:{type:'flight',prog:prog.n,al:alName,status:status,cab:cabNames[cab],route:route,trip:trip,pts:pts,cash:cash,fees:fees,lvl:lvl,feeNote:feeNote,ptVal:ptVal,cabCpp:cabCpp,effCpp:effCpp,milesEarned:milesEarned,milesVal:milesVal,earnRate:earnRate,ccName:card.n,ccMult:ccMult,ccPts:ccPts,ccVal:ccVal,totalEarned:totalEarned,cashCost:cashCost,awardCost:awardCost,savings:savings,usePoints:usePoints,sp:sp}
   });
 }
