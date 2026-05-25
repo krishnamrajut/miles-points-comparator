@@ -184,6 +184,8 @@ select:focus,input:focus{border-color:var(--grm);box-shadow:0 0 0 3px rgba(26,12
   .res-grid{grid-template-columns:1fr}
 }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 </head>
 <body>
 <div class="hdr">
@@ -220,6 +222,68 @@ select:focus,input:focus{border-color:var(--grm);box-shadow:0 0 0 3px rgba(26,12
   <div id="result"></div>
 </div>
 <script>
+// ── AIRPORT LOOKUP ─────────────────────────────────────────────────────────
+var AIRPORTS = {
+  // USA
+  ATL:'Atlanta (ATL)',BOS:'Boston (BOS)',BWI:'Baltimore (BWI)',CLT:'Charlotte (CLT)',
+  DCA:'Washington DC Reagan (DCA)',DEN:'Denver (DEN)',DFW:'Dallas Fort Worth (DFW)',
+  DTW:'Detroit (DTW)',EWR:'Newark (EWR)',FLL:'Fort Lauderdale (FLL)',
+  HNL:'Honolulu (HNL)',HOU:'Houston Hobby (HOU)',IAD:'Washington Dulles (IAD)',
+  IAH:'Houston Intercontinental (IAH)',JFK:'New York JFK (JFK)',
+  LAX:'Los Angeles (LAX)',LAS:'Las Vegas (LAS)',MCO:'Orlando (MCO)',
+  MDW:'Chicago Midway (MDW)',MIA:'Miami (MIA)',MSP:'Minneapolis (MSP)',
+  MSY:'New Orleans (MSY)',ORD:'Chicago OHare (ORD)',PDX:'Portland (PDX)',
+  PHL:'Philadelphia (PHL)',PHX:'Phoenix (PHX)',RDU:'Raleigh-Durham (RDU)',
+  SAN:'San Diego (SAN)',SEA:'Seattle (SEA)',SFO:'San Francisco (SFO)',
+  SJC:'San Jose (SJC)',SLC:'Salt Lake City (SLC)',STL:'St. Louis (STL)',
+  TPA:'Tampa (TPA)',
+  // Canada
+  YUL:'Montreal (YUL)',YVR:'Vancouver (YVR)',YYZ:'Toronto (YYZ)',
+  YYC:'Calgary (YYC)',YEG:'Edmonton (YEG)',
+  // Europe
+  AMS:'Amsterdam (AMS)',ARN:'Stockholm (ARN)',ATH:'Athens (ATH)',
+  BCN:'Barcelona (BCN)',BRU:'Brussels (BRU)',CDG:'Paris CDG (CDG)',
+  CPH:'Copenhagen (CPH)',DUB:'Dublin (DUB)',DUS:'Düsseldorf (DUS)',
+  FCO:'Rome (FCO)',FRA:'Frankfurt (FRA)',GVA:'Geneva (GVA)',
+  HAM:'Hamburg (HAM)',HEL:'Helsinki (HEL)',IST:'Istanbul (IST)',
+  LHR:'London Heathrow (LHR)',LGW:'London Gatwick (LGW)',
+  LIS:'Lisbon (LIS)',MAD:'Madrid (MAD)',MAN:'Manchester (MAN)',
+  MUC:'Munich (MUC)',MXP:'Milan Malpensa (MXP)',NCE:'Nice (NCE)',
+  ORY:'Paris Orly (ORY)',OSL:'Oslo (OSL)',PRG:'Prague (PRG)',
+  VIE:'Vienna (VIE)',WAW:'Warsaw (WAW)',ZRH:'Zurich (ZRH)',
+  // Asia Pacific
+  AKL:'Auckland (AKL)',BKK:'Bangkok (BKK)',BOM:'Mumbai (BOM)',
+  CAN:'Guangzhou (CAN)',CGK:'Jakarta (CGK)',CTS:'Sapporo (CTS)',
+  DEL:'Delhi (DEL)',GRU:'Sao Paulo (GRU)',GUM:'Guam (GUM)',
+  HKG:'Hong Kong (HKG)',HND:'Tokyo Haneda (HND)',ICN:'Seoul Incheon (ICN)',
+  ITM:'Osaka Itami (ITM)',KIX:'Osaka Kansai (KIX)',KUL:'Kuala Lumpur (KUL)',
+  MEL:'Melbourne (MEL)',MNL:'Manila (MNL)',NRT:'Tokyo Narita (NRT)',
+  PEK:'Beijing Capital (PEK)',PKX:'Beijing Daxing (PKX)',
+  PVG:'Shanghai Pudong (PVG)',SGN:'Ho Chi Minh City (SGN)',
+  SIN:'Singapore (SIN)',SYD:'Sydney (SYD)',TPE:'Taipei (TPE)',
+  // Middle East & Africa
+  AUH:'Abu Dhabi (AUH)',CAI:'Cairo (CAI)',CMN:'Casablanca (CMN)',
+  DOH:'Doha (DOH)',DXB:'Dubai (DXB)',JNB:'Johannesburg (JNB)',
+  NBO:'Nairobi (NBO)',RUH:'Riyadh (RUH)',TLV:'Tel Aviv (TLV)',
+  // Latin America  
+  BOG:'Bogota (BOG)',EZE:'Buenos Aires (EZE)',GIG:'Rio de Janeiro (GIG)',
+  LIM:'Lima (LIM)',MEX:'Mexico City (MEX)',PTY:'Panama City (PTY)',
+  SCL:'Santiago (SCL)',
+};
+
+function getAirportName(code){
+  return AIRPORTS[code.toUpperCase()] || code.toUpperCase();
+}
+
+function showAirportHint(inputEl, hintEl){
+  var codes = inputEl.value.toUpperCase().split(',').map(function(s){return s.trim();}).filter(Boolean);
+  if(!codes.length || !hintEl){ hintEl.textContent=''; return; }
+  var names = codes.map(function(c){ return AIRPORTS[c]||c; });
+  hintEl.textContent = names.join('  +  ');
+  hintEl.style.display = 'block';
+}
+
+
 // ── AIRLINE FEE DATA (one-way) ─────────────────────────────────────────────
 var AF = {
   aa:       {n:'American Airlines (AA metal)',dom:5.60,sh:80,  lo:100, lvl:'low',      nt:'AA own metal: US excise tax only. No fuel surcharges worldwide.'},
@@ -446,6 +510,29 @@ function benefitBlock(items){
 
 // ── PILL HELPERS ───────────────────────────────────────────────────────────
 var selSCab = 'all';
+var selSTrip = 'oneway';
+
+function setSTrip(v, el){
+  selSTrip = v;
+  document.querySelectorAll('.pill[data-grp="striptype"]').forEach(function(p){ p.classList.remove('on'); });
+  el.classList.add('on');
+  updateSTripUI();
+}
+function updateSTripUI(){
+  var endWrap = sv('s-end-wrap');
+  var lbl1 = sv('s-date-lbl1');
+  if(!endWrap) return;
+  if(selSTrip==='oneway'){
+    endWrap.style.opacity = '0.3';
+    endWrap.style.pointerEvents = 'none';
+    if(lbl1) lbl1.textContent = 'Departure date (search range start)';
+  } else {
+    endWrap.style.opacity = '1';
+    endWrap.style.pointerEvents = '';
+    if(lbl1) lbl1.textContent = 'Departure date';
+  }
+}
+
 function saveApiKey(val){
   if(val && val.trim()){
     localStorage.setItem('seats_aero_api_key', val.trim());
@@ -1063,22 +1150,43 @@ function analyzeC(){
 // ── AWARD SEARCH ────────────────────────────────────────────────────────────
 var searchState = {data:[], cursor:0, total:0, params:{}};
 
+var PROXY_WORKER_CODE = "export default {\n  async fetch(request, env) {\n    if (request.method === 'OPTIONS') {\n      return new Response(null, { headers: {\n        'Access-Control-Allow-Origin': '*',\n        'Access-Control-Allow-Headers': 'Partner-Authorization, Content-Type',\n        'Access-Control-Allow-Methods': 'GET, OPTIONS'\n      }});\n    }\n    const url = new URL(request.url);\n    const target = url.searchParams.get('target');\n    if (!target || !target.startsWith('https://seats.aero/')) {\n      return new Response('Invalid target', { status: 400 });\n    }\n    const apiKey = request.headers.get('Partner-Authorization') || env.SEATS_API_KEY || '';\n    const res = await fetch(target, {\n      headers: { 'Partner-Authorization': apiKey }\n    });\n    const body = await res.text();\n    return new Response(body, {\n      status: res.status,\n      headers: {\n        'Content-Type': 'application/json',\n        'Access-Control-Allow-Origin': '*'\n      }\n    });\n  }\n};";
+function copyProxyCode(){
+  navigator.clipboard.writeText(PROXY_WORKER_CODE).then(function(){
+    var el = sv('copy-confirm');
+    if(el){ el.style.display='inline'; setTimeout(function(){ el.style.display='none'; }, 2500); }
+  }).catch(function(){
+    prompt('Copy this Cloudflare Worker code:', PROXY_WORKER_CODE);
+  });
+}
+
 async function doSearch(cursor){
   var apiKey  = (sv('s-apikey')&&sv('s-apikey').value.trim()) || localStorage.getItem('seats_aero_api_key') || '';
-  var orig    = sv('s-orig')&&sv('s-orig').value.trim();
-  var dest    = sv('s-dest')&&sv('s-dest').value.trim();
+  var proxyUrl = (sv('s-proxy')&&sv('s-proxy').value.trim()) || localStorage.getItem('seats_aero_proxy') || '';
+  var orig    = sv('s-orig')&&sv('s-orig').value.trim().toUpperCase();
+  var dest    = sv('s-dest')&&sv('s-dest').value.trim().toUpperCase();
   var start   = sv('s-start')&&sv('s-start').value.trim();
   var end     = sv('s-end')&&sv('s-end').value.trim();
   var direct  = sv('s-direct')&&sv('s-direct').checked;
+  var lowMiles= sv('s-lowmiles')&&sv('s-lowmiles').checked;
   var progSel = sv('s-prog');
   var progs   = progSel ? Array.from(progSel.selectedOptions).map(function(o){return o.value;}) : [];
+  var isOneWay = selSTrip === 'oneway';
 
   if(!apiKey){ alert('Please enter your Seats.aero API key.'); return; }
-  if(!orig || !dest){ alert('Please enter origin and destination airports.'); return; }
-  if(!start || !end){ alert('Please enter a start and end date.'); return; }
+  if(!proxyUrl){ alert('Please enter your Cloudflare Worker proxy URL. See the setup instructions above.'); return; }
+  if(!orig || !dest){ alert('Please enter origin and destination airports (e.g. JFK, LHR).'); return; }
+  if(!start){ alert('Please select a departure date.'); return; }
+  // For one-way: use start date as both start and a 7-day window if no end provided
+  if(isOneWay && !end){
+    var d = new Date(start);
+    d.setDate(d.getDate()+1);
+    end = d.toISOString().substring(0,10);
+  }
+  if(!end){ alert('Please select a return/end date.'); return; }
 
   var btn = sv('main-btn');
-  if(btn){ btn.disabled=true; sv('btn-label').textContent='Searching…'; }
+  if(btn){ btn.disabled=true; sv('btn-label').textContent='Searching...'; }
 
   var params = {
     origin_airport: orig,
@@ -1086,35 +1194,35 @@ async function doSearch(cursor){
     start_date: start,
     end_date: end,
     take: 200,
-    order_by: 'date',
+    order_by: lowMiles ? 'lowest_mileage' : 'date',
   };
   if(cursor) params.cursor = cursor;
   if(direct) params.only_direct_flights = true;
   if(progs.length) params.sources = progs.join(',');
   if(selSCab && selSCab!=='all'){
-    var cabMap = {economy:'economy',premium:'premium',business:'business',first:'first'};
-    params.cabins = cabMap[selSCab]||selSCab;
+    params.cabins = selSCab;
   }
 
   searchState.params = params;
 
   var qs = Object.keys(params).map(function(k){ return k+'='+encodeURIComponent(params[k]); }).join('&');
-  var url = 'https://seats.aero/partnerapi/search?'+qs;
+  // Route through Cloudflare Worker proxy to avoid CORS
+  var url = proxyUrl.replace(/\/+$/, '') + '?target=' + encodeURIComponent('https://seats.aero/partnerapi/search?'+qs);
 
   try {
     var res = await fetch(url, { headers: { 'Partner-Authorization': apiKey } });
     if(!res.ok){
-      var err = await res.text();
-      sv('result').innerHTML = '<div class="no-results"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>API error ('+res.status+'): '+err+'</div>';
+      var errText = await res.text();
+      sv('result').innerHTML = '<div class="no-results"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>API error '+res.status+': '+errText+'</div>';
       return;
     }
     var data = await res.json();
     searchState.data   = data.data || [];
     searchState.cursor = data.cursor || 0;
     searchState.total  = data.count || searchState.data.length;
-    renderSearch(orig, dest, start, end);
+    renderSearch(orig, dest, start, end, isOneWay);
   } catch(e) {
-    sv('result').innerHTML = '<div class="no-results"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Request failed: '+e.message+'<br><br><small>Make sure your API key is correct and you have a Pro subscription.</small></div>';
+    sv('result').innerHTML = '<div class="no-results"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Failed to connect to proxy: '+e.message+'<br><br><small>Make sure your Cloudflare Worker URL is correct and the worker is deployed.</small></div>';
   } finally {
     if(btn){ btn.disabled=false; sv('btn-label').textContent='Search Award Availability'; }
   }
@@ -1151,7 +1259,7 @@ var programLabels = {
   flyingblue:'Flying Blue',iberia:'Iberia Plus',cathay:'Asia Miles'
 };
 
-function renderSearch(orig, dest, start, end){
+function renderSearch(orig, dest, start, end, isOneWay){
   var data = searchState.data;
   var out  = sv('result');
   if(!data.length){
