@@ -3,943 +3,930 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Miles & Points Comparator</title>
+<title>Points vs Cash</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#f7f6f2;--surface:#fff;--surface2:#f2f0eb;
-    --border:#e2dfd7;--border-strong:#c9c6bc;
-    --text:#1a1916;--text-2:#5a574f;--text-3:#9a9790;
-    --accent:#1a4a3a;--accent-light:#e8f2ee;--accent-text:#0f3328;
-    --danger:#7a1a1a;--danger-light:#fdf0f0;
-    --blue:#1a3a6a;--blue-light:#eaf0fa;
-    --gold:#8a6a10;--gold-light:#fdf8e6;
-    --purple:#4a1a7a;--purple-light:#f3eefa;
-    --teal:#0f5a5a;--teal-light:#e6f5f5;
-    --orange:#7a3a10;--orange-light:#fdf0e6;
-    --radius:10px;--radius-lg:14px;
-    --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
-  }
-  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px}
-
-  .header{background:var(--accent);padding:32px 40px 28px;position:relative;overflow:hidden}
-  .header::after{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
-  .header-inner{max-width:980px;margin:0 auto}
-  .header h1{font-size:26px;font-weight:600;color:#fff;letter-spacing:-.3px}
-  .header p{font-size:14px;color:rgba(255,255,255,.65);margin-top:4px}
-  .header-badge{display:inline-block;margin-top:14px;padding:4px 12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:20px;font-size:12px;color:rgba(255,255,255,.8);font-family:'DM Mono',monospace;letter-spacing:.3px}
-
-  .container{max-width:980px;margin:0 auto;padding:32px 24px 0}
-
-  /* Main tabs */
-  .tabs{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
-  .tab{padding:9px 22px;border-radius:8px;border:1px solid var(--border-strong);font-size:13.5px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text-2);display:flex;align-items:center;gap:7px;transition:all .15s}
-  .tab svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
-  .tab:hover{background:var(--surface2);color:var(--text)}
-  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-  /* Sub-tabs (within a panel) */
-  .sub-tabs{display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border-strong);border-radius:var(--radius);overflow:hidden;width:fit-content}
-  .sub-tab{padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text-2);border:none;border-right:1px solid var(--border-strong);transition:all .15s;display:flex;align-items:center;gap:6px}
-  .sub-tab:last-child{border-right:none}
-  .sub-tab svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
-  .sub-tab:hover{background:var(--surface2);color:var(--text)}
-  .sub-tab.active{background:var(--surface2);color:var(--text);font-weight:600}
-  .sub-tab.active.air-miles{background:#e8f2ee;color:var(--accent)}
-  .sub-tab.active.companion{background:var(--orange-light);color:var(--orange)}
-  .sub-tab.active.hotel-pts{background:#e8f2ee;color:var(--accent)}
-  .sub-tab.active.fnc{background:var(--teal-light);color:var(--teal)}
-
-  /* Info banners */
-  .info-banner{border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;font-size:13px;line-height:1.6}
-  .info-banner.companion-banner{background:var(--orange-light);border:1px solid #e8b890;color:var(--orange)}
-  .info-banner.fnc-banner{background:var(--teal-light);border:1px solid #9fd4d4;color:var(--teal)}
-  .info-banner strong{font-weight:600}
-
-  .entry-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:12px;position:relative;box-shadow:var(--shadow);transition:border-color .15s}
-  .entry-card:hover{border-color:var(--border-strong)}
-  .entry-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-  .entry-num{font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--text-3);text-transform:uppercase}
-  .rm{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text-3);transition:all .12s}
-  .rm:hover{background:var(--danger-light);border-color:#f0b0b0;color:var(--danger)}
-  .rm svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
-
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
-  .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px}
-  .fl{display:flex;flex-direction:column}
-  label.lbl{font-size:11px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:block}
-  select,input[type=number],input[type=text]{width:100%;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);border:1px solid var(--border-strong);border-radius:7px;color:var(--text);outline:none;transition:border-color .12s,box-shadow .12s;-webkit-appearance:none;appearance:none}
-  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9790' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
-  select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,74,58,.1)}
-
-  /* Pill selectors */
-  .pill-group{display:flex;gap:6px;flex-wrap:wrap}
-  .pill{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border-strong);background:var(--bg);color:var(--text-2);transition:all .12s}
-  .pill:hover{border-color:var(--accent);color:var(--accent)}
-  .pill.active{color:#fff}
-  .pill.econ.active  {background:#1a4a3a;border-color:#1a4a3a}
-  .pill.prem.active  {background:#1a3a6a;border-color:#1a3a6a}
-  .pill.biz.active   {background:#6a3a1a;border-color:#6a3a1a}
-  .pill.first.active {background:#4a1a7a;border-color:#4a1a7a}
-  .pill.std.active   {background:#1a4a3a;border-color:#1a4a3a}
-  .pill.upscale.active{background:#0f5a5a;border-color:#0f5a5a}
-  .pill.lux.active   {background:#4a1a7a;border-color:#4a1a7a}
-
-  .adv-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text-3);user-select:none;width:fit-content;transition:color .12s}
-  .adv-toggle:hover{color:var(--accent)}
-  .adv-toggle svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s}
-  .adv-toggle.open svg{transform:rotate(180deg)}
-  .adv-body{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-
-  .btn-row{display:flex;gap:10px;margin:16px 0 28px}
-  .btn{padding:11px 0;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;border-radius:var(--radius);cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
-  .btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-  .btn-primary{background:var(--accent);color:#fff;border:1px solid var(--accent)}
-  .btn-primary:hover{background:#153d30}
-  .btn-secondary{background:var(--surface);color:var(--text-2);border:1px solid var(--border-strong)}
-  .btn-secondary:hover{background:var(--surface2)}
-  .btn-ai{background:var(--purple-light);color:var(--purple);border:1px solid #c9b0e8}
-  .btn-ai:hover{background:#ebe0f8}
-  .btn-ai:disabled{opacity:.5;cursor:not-allowed}
-
-  .btn-add{padding:8px 16px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;background:var(--surface);border:1px dashed var(--border-strong);border-radius:var(--radius);cursor:pointer;color:var(--text-2);display:flex;align-items:center;gap:6px;margin-bottom:12px;transition:all .15s}
-  .btn-add svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
-  .btn-add:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
-
-  .results-section{margin-top:4px}
-  .section-title{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3);margin-bottom:14px;margin-top:28px;padding-top:22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-
-  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
-  .mc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
-  .mc-num{font-size:22px;font-weight:600;color:var(--text);line-height:1}
-  .mc-lbl{font-size:11px;color:var(--text-3);margin-top:5px}
-  .mc-num.green{color:var(--accent)} .mc-num.red{color:var(--danger)} .mc-num.teal{color:var(--teal)} .mc-num.orange{color:var(--orange)}
-
-  .table-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:24px}
-  table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--surface);min-width:860px}
-  thead th{background:var(--surface2);padding:10px 13px;text-align:left;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap}
-  tbody td{padding:11px 13px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
-  tbody tr:last-child td{border-bottom:none}
-  tbody tr.best{background:var(--accent-light)}
-  tbody tr.best-teal{background:var(--teal-light)}
-  tbody tr.best-orange{background:var(--orange-light)}
-  tbody tr:hover:not(.best):not(.best-teal):not(.best-orange){background:var(--surface2)}
-
-  .badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap}
-  .b-great{background:#dff2e6;color:#1a5c32} .b-good{background:var(--blue-light);color:var(--blue)}
-  .b-fair{background:var(--gold-light);color:var(--gold)} .b-poor{background:var(--danger-light);color:var(--danger)}
-  .b-win{background:var(--accent-light);color:var(--accent-text)} .b-cash{background:var(--surface2);color:var(--text-2)}
-  .b-star{background:var(--gold-light);color:var(--gold)}
-  .b-econ{background:#e8f2ee;color:#1a4a3a} .b-prem{background:var(--blue-light);color:var(--blue)}
-  .b-biz{background:var(--orange-light);color:var(--orange)} .b-first{background:var(--purple-light);color:var(--purple)}
-  .b-fnc{background:var(--teal-light);color:var(--teal)}
-  .b-lux{background:var(--purple-light);color:var(--purple)} .b-upscale{background:var(--blue-light);color:var(--blue)}
-  .b-uncapped{background:#e6f5f5;color:#0a4545} .b-capped{background:var(--gold-light);color:var(--gold)}
-  .b-companion{background:var(--orange-light);color:var(--orange)}
-  .b-delta{background:#e8f0fa;color:#1a3a6a} .b-aa{background:#fdf0f0;color:#7a1a1a}
-
-  /* FNC result cards */
-  .cert-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
-  .cert-card.winner{border-color:#9fd4d4;border-width:2px}
-  .cert-card.winner-orange{border-color:#e8b890;border-width:2px}
-  .cert-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px}
-  .cert-title{font-size:15px;font-weight:600;color:var(--text)}
-  .cert-sub{font-size:12px;color:var(--text-3);margin-top:3px}
-  .cert-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-  .cert-stat{background:var(--bg);border-radius:8px;padding:10px 12px}
-  .cert-stat-num{font-size:18px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)}
-  .cert-stat-lbl{font-size:11px;color:var(--text-3);margin-top:3px}
-  .cert-stat-num.pos{color:var(--accent)} .cert-stat-num.neg{color:var(--danger)}
-  .cert-stat-num.teal{color:var(--teal)} .cert-stat-num.orange{color:var(--orange)}
-  .cert-divider{border-top:1px solid var(--border);padding-top:12px}
-  .cert-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)}
-  .cert-row:last-child{border-bottom:none}
-  .cert-key{color:var(--text-2)} .cert-val{font-weight:500;font-family:'DM Mono',monospace;font-size:12px}
-  .cert-verdict{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:8px;margin-top:12px;font-size:13px;font-weight:500}
-  .cert-verdict.great{background:var(--teal-light);color:var(--teal)}
-  .cert-verdict.good{background:var(--accent-light);color:var(--accent)}
-  .cert-verdict.fair{background:var(--gold-light);color:var(--gold)}
-  .cert-verdict.poor{background:var(--danger-light);color:var(--danger)}
-  .cert-verdict.comp-great{background:var(--orange-light);color:var(--orange)}
-  .cert-verdict.comp-good{background:var(--accent-light);color:var(--accent)}
-
-  .be-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
-  .be-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow)}
-  .be-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
-  .be-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:7px 0;border-bottom:1px solid var(--border)}
-  .be-row:last-child{border-bottom:none}
-  .be-key{color:var(--text-2)} .be-val{font-weight:500;color:var(--text);font-family:'DM Mono',monospace;font-size:12px}
-  .be-pass{color:var(--accent)} .be-fail{color:var(--danger)}
-
-  .ai-card{background:var(--surface);border:1px solid #c9b0e8;border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:24px;box-shadow:var(--shadow)}
-  .ai-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-  .ai-icon{width:32px;height:32px;background:var(--purple-light);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .ai-icon svg{width:16px;height:16px;stroke:var(--purple);fill:none;stroke-width:2}
-  .ai-title{font-size:13px;font-weight:600;color:var(--purple)}
-  .ai-subtitle{font-size:11px;color:var(--text-3);margin-top:1px}
-  .ai-body{font-size:13px;color:var(--text-2);line-height:1.8}
-  .ai-body h4{font-size:12px;font-weight:600;color:var(--text);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
-  .ai-body strong{color:var(--text)}
-  .ai-loading{display:flex;align-items:center;gap:10px;color:var(--text-3);font-size:13px}
-  .ai-dot{width:6px;height:6px;border-radius:50%;background:var(--purple);animation:pulse 1.2s ease-in-out infinite}
-  .ai-dot:nth-child(2){animation-delay:.2s} .ai-dot:nth-child(3){animation-delay:.4s}
-  @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
-
-  .note-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:12px;color:var(--text-2);line-height:1.7;margin-bottom:16px}
-  .note-box strong{color:var(--text)}
-  .export-btn{padding:8px 16px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius);cursor:pointer;color:var(--text-2);display:flex;align-items:center;gap:6px;transition:all .12s}
-  .export-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
-  .export-btn:hover{background:var(--surface2);color:var(--text)}
-  .empty{text-align:center;padding:3rem 2rem;color:var(--text-3);font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:20px}
-  .empty svg{width:32px;height:32px;stroke:var(--border-strong);fill:none;stroke-width:1.5;display:block;margin:0 auto 12px}
-  .pos{color:var(--accent);font-weight:500} .neg{color:var(--danger);font-weight:500}
-
-  @media(max-width:700px){
-    .header{padding:24px 20px 20px} .container{padding:20px 16px 0}
-    .grid2,.grid3,.grid4{grid-template-columns:1fr 1fr}
-    .metrics{grid-template-columns:1fr 1fr}
-    .be-grid,.cert-stats{grid-template-columns:1fr}
-    .btn-row{flex-direction:column}
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--s2:#f0eeea;--s3:#e8e5e0;
+  --bd:#dedad2;--bds:#c8c4ba;
+  --tx:#18170f;--tx2:#54524a;--tx3:#96938a;
+  --gr:#0f4a2a;--grl:#e6f2eb;--grm:#1a7a45;
+  --re:#5a1010;--rel:#fdf0f0;
+  --bl:#0f2a5a;--bll:#e8f0fa;
+  --go:#6a500a;--gol:#fdf6e0;
+  --pu:#3a0f6a;--pul:#f0eafa;
+  --rad:12px;--radl:16px;--radx:20px;
+  --sh:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shl:0 8px 32px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.06);
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding-bottom:80px}
+.hdr{background:var(--gr);padding:36px 32px 32px}
+.hdr-in{max-width:740px;margin:0 auto}
+.hdr h1{font-size:28px;font-weight:600;color:#fff;letter-spacing:-.4px}
+.hdr p{font-size:14px;color:rgba(255,255,255,.6);margin-top:5px}
+.wrap{max-width:740px;margin:0 auto;padding:28px 20px 0}
+.mtabs{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--surface);border:1px solid var(--bds);border-radius:var(--rad);overflow:hidden;margin-bottom:24px;box-shadow:var(--sh)}
+.mtab{padding:12px 8px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;border:none;background:transparent;color:var(--tx3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;border-right:1px solid var(--bd);transition:all .15s}
+.mtab:last-child{border-right:none}
+.mtab svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.mtab:hover{background:var(--s2);color:var(--tx)}
+.mtab.on{background:var(--gr);color:#fff}
+.card{background:var(--surface);border:1px solid var(--bd);border-radius:var(--radx);padding:24px;box-shadow:var(--sh);margin-bottom:20px}
+.sh{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.sh svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.div{height:1px;background:var(--bd);margin:18px 0}
+.fl{display:flex;flex-direction:column;margin-bottom:14px}
+.fl:last-child{margin-bottom:0}
+.lbl{font-size:11px;font-weight:500;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+select,input[type=number]{padding:10px 13px;font-size:13.5px;font-family:'DM Sans',sans-serif;background:var(--bg);border:1.5px solid var(--bds);border-radius:10px;color:var(--tx);outline:none;width:100%;-webkit-appearance:none;appearance:none;transition:border-color .12s,box-shadow .12s}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2396938a' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+select:focus,input:focus{border-color:var(--grm);box-shadow:0 0 0 3px rgba(26,122,69,.1)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--bds);background:var(--bg);color:var(--tx2);transition:all .12s;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.pill:hover{border-color:var(--grm);color:var(--gr)}
+.pill.on{background:var(--gr);color:#fff;border-color:var(--gr)}
+.pill.eco.on{background:#1a4a3a;border-color:#1a4a3a}
+.pill.prem.on{background:#0f2a5a;border-color:#0f2a5a}
+.pill.biz.on{background:#6a2a0a;border-color:#6a2a0a}
+.pill.fst.on{background:#3a0f6a;border-color:#3a0f6a}
+.anote{font-size:11.5px;padding:8px 12px;border-radius:7px;line-height:1.55;margin-top:6px;display:none}
+.anote.low{background:var(--grl);color:var(--gr)}
+.anote.none{background:var(--grl);color:var(--gr)}
+.anote.moderate{background:var(--s2);color:var(--tx2)}
+.anote.high{background:var(--gol);color:var(--go)}
+.anote.very_high{background:var(--rel);color:var(--re)}
+.gobtn{width:100%;padding:14px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--gr);color:#fff;border:none;border-radius:var(--rad);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;margin-top:8px}
+.gobtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
+.gobtn:hover{background:#0d3d22}
+/* Results */
+.rcard{background:var(--surface);border-radius:var(--radx);overflow:hidden;box-shadow:var(--shl);margin-bottom:24px}
+.rhero{padding:26px 26px 22px}
+.rhero.pts{background:var(--grl);border-bottom:1px solid #b8d8c0}
+.rhero.cash{background:var(--bll);border-bottom:1px solid #b8cce8}
+.vbadge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:10px}
+.vbadge svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5}
+.vbadge.pts{background:var(--grm);color:#fff}
+.vbadge.cash{background:var(--bl);color:#fff}
+.rh1{font-size:24px;font-weight:600;color:var(--tx);letter-spacing:-.3px;line-height:1.25;margin-bottom:8px}
+.rsub{font-size:14px;color:var(--tx2);line-height:1.6}
+.rsub strong{color:var(--tx)}
+.rbody{padding:22px 26px}
+.mets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.met{background:var(--s2);border-radius:10px;padding:13px 15px}
+.mnum{font-size:19px;font-weight:600;font-family:'DM Mono',monospace;color:var(--tx);line-height:1}
+.mlbl{font-size:11px;color:var(--tx3);margin-top:5px;line-height:1.4}
+.mnum.gr{color:var(--grm)} .mnum.re{color:var(--re)}
+/* Breakdown */
+.bdwrap{overflow:hidden;border:1px solid var(--bd);border-radius:var(--rad);margin-bottom:20px}
+.bdgrid{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--bd)}
+.bdcol{background:var(--s2)}
+.bdhead{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:9px 14px;background:var(--s3);color:var(--tx3);border-bottom:1px solid var(--bd)}
+.bdhead.pts{color:var(--gr)} .bdhead.cash{color:var(--bl)}
+.bdrow{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12.5px}
+.bdrow:last-child{border-bottom:none}
+.bdrow.earn{color:var(--grm)} .bdrow.neg{color:var(--re)}
+.bdrow.net{font-weight:600;background:var(--surface)}
+.bdval{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+/* Benefits */
+.blist{margin-bottom:20px}
+.bitem{display:flex;gap:10px;padding:11px 14px;border-radius:10px;margin-bottom:8px;align-items:flex-start}
+.bitem:last-child{margin-bottom:0}
+.bitem.pos{background:var(--grl)} .bitem.neg{background:var(--rel)}
+.bitem.gld{background:var(--gol)} .bitem.neu{background:var(--s2)}
+.bico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.bico.pos{background:#b8d8c0} .bico.neg{background:#f0bcbc}
+.bico.gld{background:#f0dca0} .bico.neu{background:var(--s3)}
+.bico svg{width:13px;height:13px;stroke-width:2.3;fill:none}
+.bico.pos svg{stroke:var(--gr)} .bico.neg svg{stroke:var(--re)}
+.bico.gld svg{stroke:var(--go)} .bico.neu svg{stroke:var(--tx3)}
+.btxt{flex:1}
+.btit{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.bdsc{font-size:12px;color:var(--tx2);line-height:1.55}
+.btag{font-size:11px;font-weight:600;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:5px;margin-top:5px;display:inline-block}
+.btag.pos{background:#b8d8c0;color:var(--gr)} .btag.neg{background:#f0bcbc;color:var(--re)}
+.btag.gld{background:#f0dca0;color:var(--go)} .btag.neu{background:var(--s3);color:var(--tx2)}
+/* Card compare */
+.ccbox{margin-bottom:20px}
+.ccbox-inner{border-radius:var(--rad);overflow:hidden;border:1px solid var(--bds)}
+.ccbox-hd{padding:10px 14px;font-size:13px;font-weight:500;border-bottom:1px solid var(--bd)}
+.ccbox-hd.better{background:var(--gol);color:var(--go);border-color:#d4b870}
+.ccbox-hd.best{background:var(--grl);color:var(--gr);border-color:#b8d8c0}
+.ccrow{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--bd);font-size:12.5px}
+.ccrow:last-child{border-bottom:none}
+.ccrow.mine{background:var(--surface)}
+.ccval{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--tx2);flex-shrink:0}
+.ccval.best{color:var(--grm)}
+.cctag{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
+.cctag.mine{background:var(--s3);color:var(--tx2)}
+.cctag.top{background:var(--grm);color:#fff}
+.ccnote{padding:8px 14px;font-size:11.5px;color:var(--tx2);background:var(--surface)}
+/* AI */
+.aibox{background:var(--pul);border:1px solid #c0a8e0;border-radius:var(--rad);padding:18px 20px;margin-bottom:20px}
+.ailbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--pu);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ailbl svg{width:13px;height:13px;stroke:var(--pu);fill:none;stroke-width:2}
+.aitxt{font-size:13.5px;color:var(--tx2);line-height:1.75}
+.aitxt strong{color:var(--tx)}
+.ald{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx3)}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--pu);animation:pulse 1.1s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.18s}.dot:nth-child(3){animation-delay:.36s}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
+.rftr{padding:14px 26px;background:var(--s2);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.rfnote{font-size:11.5px;color:var(--tx3);line-height:1.5;flex:1}
+.newbtn{padding:8px 14px;font-size:12px;font-weight:500;background:var(--surface);border:1px solid var(--bds);border-radius:8px;cursor:pointer;color:var(--tx2);display:flex;align-items:center;gap:5px;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.newbtn:hover{background:var(--s3)}
+.newbtn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.slbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:10px}
+@media(max-width:600px){
+  .hdr{padding:24px 18px}.wrap{padding:18px 14px 0}
+  .card{padding:18px}.g2,.g3{grid-template-columns:1fr}
+  .mets{grid-template-columns:1fr 1fr}.bdgrid{grid-template-columns:1fr}
+  .rbody,.rhero{padding:18px}.rh1{font-size:20px}
+  .mtab span{display:none}
+}
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-inner">
-    <h1>Miles &amp; Points Comparator</h1>
-    <p>Compare airline miles, companion certs, hotel points, and free night certificates — with AI insights</p>
-    <span class="header-badge">Miles · Companion certs · Hotel points · Free night certs · AI-powered</span>
+<div class="hdr">
+  <div class="hdr-in">
+    <h1>Points vs Cash</h1>
+    <p>Accurate comparison — award fees, dual earning, status perks, AI analysis</p>
   </div>
 </div>
-
-<div class="container">
-
-  <!-- Main tabs -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchMain('airline',this)">
+<div class="wrap">
+  <div class="mtabs">
+    <button class="mtab on" onclick="setMode('flight',this)">
       <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-      Airline
+      <span>Flight</span>
     </button>
-    <button class="tab" onclick="switchMain('hotel',this)">
+    <button class="mtab" onclick="setMode('hotel',this)">
       <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      Hotel
+      <span>Hotel</span>
+    </button>
+    <button class="mtab" onclick="setMode('companion',this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>Companion</span>
     </button>
   </div>
-
-  <!-- ═══ AIRLINE PANEL ═══ -->
-  <div id="panel-airline">
-    <div class="sub-tabs">
-      <button class="sub-tab air-miles active" id="stab-air-miles" onclick="switchSub('airline','miles',this)">
-        <svg viewBox="0 0 24 24"><path d="M3 17l9-9 4 4 5-5M14 7h5v5"/></svg>
-        Miles redemption
-      </button>
-      <button class="sub-tab companion" id="stab-air-companion" onclick="switchSub('airline','companion',this)">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-        Companion certificate
-      </button>
-    </div>
-
-    <!-- Miles sub-panel -->
-    <div id="sub-airline-miles">
-      <div id="entries-airline"></div>
-      <button class="btn-add" onclick="addEntry('airline')">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add another option
-      </button>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="compare('airline')">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Compare options
-        </button>
-        <button class="btn btn-ai" id="ai-btn-airline" onclick="getAIInsights('airline')" disabled>
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-          AI Insights
-        </button>
-        <button class="btn btn-secondary" onclick="clearSection('airline')">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-          Clear
-        </button>
-      </div>
-      <div id="results-airline"></div>
-    </div>
-
-    <!-- Companion certificate sub-panel -->
-    <div id="sub-airline-companion" style="display:none">
-      <div class="info-banner companion-banner">
-        <strong>Companion certificates</strong> let you bring a second traveler for only taxes &amp; fees when you buy a qualifying ticket. Delta and American cards offer these annually. The key question: what's the companion ticket's cash value versus your effective certificate cost (card fee minus other benefits)?
-      </div>
-      <div id="entries-companion"></div>
-      <button class="btn-add" onclick="addCompanion()">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add another certificate
-      </button>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="compareCompanion()">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Analyze certificates
-        </button>
-        <button class="btn btn-ai" id="ai-btn-companion" onclick="getAIInsights('companion')" disabled>
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-          AI Insights
-        </button>
-        <button class="btn btn-secondary" onclick="clearSection('companion')">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-          Clear
-        </button>
-      </div>
-      <div id="results-companion"></div>
-    </div>
+  <div class="card"><div id="fields"></div>
+    <button class="gobtn" onclick="analyze()">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Analyze — Points or Cash?
+    </button>
   </div>
-
-  <!-- ═══ HOTEL PANEL ═══ -->
-  <div id="panel-hotel" style="display:none">
-    <div class="sub-tabs">
-      <button class="sub-tab hotel-pts active" id="stab-hotel-pts" onclick="switchSub('hotel','pts',this)">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        Points redemption
-      </button>
-      <button class="sub-tab fnc" id="stab-hotel-fnc" onclick="switchSub('hotel','fnc',this)">
-        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        Free night certificate
-      </button>
-    </div>
-
-    <!-- Hotel points sub-panel -->
-    <div id="sub-hotel-pts">
-      <div id="entries-hotel"></div>
-      <button class="btn-add" onclick="addEntry('hotel')">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add another option
-      </button>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="compare('hotel')">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Compare options
-        </button>
-        <button class="btn btn-ai" id="ai-btn-hotel" onclick="getAIInsights('hotel')" disabled>
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-          AI Insights
-        </button>
-        <button class="btn btn-secondary" onclick="clearSection('hotel')">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-          Clear
-        </button>
-      </div>
-      <div id="results-hotel"></div>
-    </div>
-
-    <!-- Free night certificate sub-panel -->
-    <div id="sub-hotel-fnc" style="display:none">
-      <div class="info-banner fnc-banner">
-        <strong>Free night certificates</strong> come with hotel credit cards and cover a standard room — sometimes at any property worldwide (Hilton Aspire: Waldorf Astoria, Conrad) or within a category cap (Marriott, Hyatt). Enter what you'd pay cash and what the card costs you after other benefits to find the true value.
-      </div>
-      <div id="entries-fnc"></div>
-      <button class="btn-add" onclick="addFNC()">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add another certificate
-      </button>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="compareFNC()">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Analyze certificates
-        </button>
-        <button class="btn btn-ai" id="ai-btn-fnc" onclick="getAIInsights('fnc')" disabled>
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-          AI Insights
-        </button>
-        <button class="btn btn-secondary" onclick="clearSection('fnc')">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-          Clear
-        </button>
-      </div>
-      <div id="results-fnc"></div>
-    </div>
-  </div>
-
-</div><!-- /container -->
-
+  <div id="result"></div>
+</div>
 <script>
-// ─── DATA ─────────────────────────────────────────────────────────────────────
-const CABIN_CPP={economy:1.1,premium:1.4,business:1.9,first:2.4};
-const CABIN_LABEL={economy:'Economy',premium:'Prem. Eco.',business:'Business',first:'First'};
-const CABIN_CLASS={economy:'b-econ',premium:'b-prem',business:'b-biz',first:'b-first'};
-
-const PROGS={
-  airline:[
-    {n:'Delta SkyMiles',cpp:1.2,earn:5},{n:'United MileagePlus',cpp:1.35,earn:5},
-    {n:'American AAdvantage',cpp:1.5,earn:5},{n:'Southwest Rapid Rewards',cpp:1.5,earn:6},
-    {n:'Alaska Mileage Plan',cpp:1.8,earn:5},{n:'JetBlue TrueBlue',cpp:1.3,earn:6},
-    {n:'Air France/KLM Flying Blue',cpp:1.4,earn:4},{n:'British Airways Avios',cpp:1.5,earn:4},
-    {n:'Emirates Skywards',cpp:1.1,earn:5},{n:'Virgin Atlantic Flying Club',cpp:1.5,earn:5},
-    {n:'Chase Ultimate Rewards',cpp:2.0,earn:0},{n:'Amex Membership Rewards',cpp:2.0,earn:0},
-    {n:'Citi ThankYou Points',cpp:1.7,earn:0},{n:'Capital One Miles',cpp:1.8,earn:0},
-    {n:'Bilt Points',cpp:2.0,earn:0},{n:'Avianca LifeMiles',cpp:1.3,earn:0},
-  ],
-  hotel:[
-    {n:'World of Hyatt',cpp:1.7,earn:5},{n:'Marriott Bonvoy',cpp:0.8,earn:10},
-    {n:'Hilton Honors',cpp:0.6,earn:10},{n:'IHG One Rewards',cpp:0.7,earn:10},
-    {n:'Wyndham Rewards',cpp:0.9,earn:10},{n:'Choice Privileges',cpp:0.6,earn:10},
-    {n:'Best Western Rewards',cpp:0.7,earn:10},{n:'Radisson Rewards',cpp:0.4,earn:10},
-    {n:'Accor Live Limitless',cpp:2.0,earn:8},
-  ]
+// ── AIRLINE FEE DATA (one-way) ─────────────────────────────────────────────
+var AF = {
+  aa:       {n:'American Airlines (AA metal)',dom:5.60,sh:80,  lo:100, lvl:'low',      nt:'AA own metal: US excise tax only. No fuel surcharges worldwide.'},
+  delta:    {n:'Delta Air Lines (DL metal)',  dom:5.60,sh:60,  lo:80,  lvl:'low',      nt:'Delta: No fuel surcharges on any route. Government taxes only.'},
+  united:   {n:'United Airlines (UA metal)',  dom:5.60,sh:80,  lo:100, lvl:'low',      nt:'United own metal: No fuel surcharges. Government taxes only.'},
+  alaska:   {n:'Alaska Airlines (AS metal)',  dom:5.60,sh:60,  lo:80,  lvl:'low',      nt:'Alaska own metal: No fuel surcharges. Government taxes only.'},
+  southwest:{n:'Southwest Airlines',          dom:5.60,sh:null,lo:null,lvl:'none',     nt:'Domestic only. US excise tax ~$5.60 one-way. No fuel surcharges.'},
+  jetblue:  {n:'JetBlue Airways (B6 metal)',  dom:5.60,sh:60,  lo:80,  lvl:'low',      nt:'JetBlue: No fuel surcharges on own metal.'},
+  ba:       {n:'British Airways (BA metal)',  dom:null,sh:350, lo:880, lvl:'very_high', nt:'WARNING: BA charges $350-880 ONE-WAY in carrier surcharges. Use Iberia (Madrid routing ~$120) or AA/Alaska metal to avoid.'},
+  iberia:   {n:'Iberia (IB metal)',           dom:null,sh:50,  lo:120, lvl:'low',       nt:'Iberia charges minimal fees vs BA. NYC-Madrid business class ~$120 one-way — far cheaper than BA surcharges.'},
+  qatar:    {n:'Qatar Airways (QR metal)',    dom:null,sh:30,  lo:75,  lvl:'low',       nt:'Qatar charges minimal fees. Excellent for Qsuites business class.'},
+  cathay:   {n:'Cathay Pacific (CX metal)',   dom:null,sh:40,  lo:90,  lvl:'low',       nt:'Cathay charges moderate fees. Strong for HKG-routed premium redemptions.'},
+  finnair:  {n:'Finnair (AY metal)',          dom:null,sh:60,  lo:110, lvl:'moderate',  nt:'Finnair charges moderate fees on AY-operated flights.'},
+  lufthansa:{n:'Lufthansa (LH metal)',        dom:null,sh:150, lo:400, lvl:'high',      nt:'WARNING: Lufthansa charges $150-400 one-way in carrier surcharges. Consider United metal or LifeMiles.'},
+  swiss:    {n:'SWISS (LX metal)',            dom:null,sh:150, lo:400, lvl:'high',      nt:'WARNING: SWISS (Lufthansa Group) charges similar surcharges to Lufthansa.'},
+  austrian: {n:'Austrian Airlines (OS metal)',dom:null,sh:150, lo:350, lvl:'high',      nt:'WARNING: Austrian (Lufthansa Group) charges similar surcharges to LH/LX.'},
+  ana:      {n:'ANA All Nippon Airways',      dom:null,sh:40,  lo:80,  lvl:'low',       nt:'ANA charges minimal fees. Among the best business/first class in the world.'},
+  singapore:{n:'Singapore Airlines (SQ)',     dom:null,sh:40,  lo:100, lvl:'low',       nt:'Singapore Airlines: minimal fees. Best for Suites and Business Class to Asia.'},
+  air_france:{n:'Air France (AF metal)',      dom:null,sh:120, lo:280, lvl:'moderate',  nt:'Air France charges $120-280 one-way. Flying Blue promo awards offer 25-50% reduced fees.'},
+  klm:      {n:'KLM (KL metal)',              dom:null,sh:120, lo:280, lvl:'moderate',  nt:'KLM charges similar surcharges to Air France.'},
+  korean:   {n:'Korean Air (KE metal)',       dom:null,sh:40,  lo:100, lvl:'low',       nt:'Korean Air charges minimal fees. Great for East Asia connections.'},
+  emirates: {n:'Emirates (EK metal)',         dom:null,sh:350, lo:1023,lvl:'very_high', nt:'WARNING: Emirates charges up to $1,023 ONE-WAY for business/first to Americas. Book via Aeroplan for no surcharges.'},
+  etihad:   {n:'Etihad Airways (EY metal)',   dom:null,sh:25,  lo:80,  lvl:'low',       nt:'Etihad: minimal fees. Excellent value in Business Studio or First Apartments.'},
+  jal:      {n:'Japan Airlines (JL metal)',   dom:null,sh:40,  lo:80,  lvl:'low',       nt:'JAL charges minimal fees. Excellent for business/first to Japan via AA AAdvantage.'},
+  virgin_atl:{n:'Virgin Atlantic (VS metal)', dom:null,sh:100, lo:300, lvl:'moderate',  nt:'Virgin Atlantic charges $100-300 on VS metal. Upper Class to London is excellent.'},
+  avianca:  {n:'Avianca (AV metal)',          dom:5.60,sh:40,  lo:80,  lvl:'low',       nt:'Avianca: minimal fees. LifeMiles has no close-in booking fees.'},
+  air_canada:{n:'Air Canada (AC metal)',      dom:5.60,sh:80,  lo:120, lvl:'moderate',  nt:'Air Canada: moderate Aeroplan surcharges. Good for Europe via YYZ/YVR.'}
 };
 
-const COMPANION_PROGS=[
-  // Delta
-  {n:'Delta SkyMiles Reserve (personal)',airline:'Delta',annual:695,cabin:'first',cabinLabel:'First / Delta One',taxes:11.20,note:'Domestic first class or Delta One — main cabin on select routes. Requires round-trip purchase.',color:'delta'},
-  {n:'Delta SkyMiles Reserve Business',airline:'Delta',annual:550,cabin:'first',cabinLabel:'First / Delta One',taxes:11.20,note:'Same benefit as personal Reserve card.',color:'delta'},
-  {n:'Delta SkyMiles Platinum (personal)',airline:'Delta',annual:350,cabin:'economy',cabinLabel:'Main Cabin',taxes:11.20,note:'Domestic Main Cabin companion. Requires round-trip purchase.',color:'delta'},
-  {n:'Delta SkyMiles Platinum Business',airline:'Delta',annual:350,cabin:'economy',cabinLabel:'Main Cabin',taxes:11.20,note:'Domestic Main Cabin companion.',color:'delta'},
-  // American Airlines
-  {n:'Citi AAdvantage Executive',airline:'American',annual:595,cabin:'economy',cabinLabel:'Economy (domestic)',taxes:11.20,note:'Companion certificate valid on domestic itineraries. Issued each year card is open.',color:'aa'},
-  {n:'Barclays AAdvantage Aviator Red',airline:'American',annual:99,cabin:'economy',cabinLabel:'Economy',taxes:99,note:'Companion cert after $20k spend in calendar year. Pay $99 + taxes for companion.',color:'aa'},
-  {n:'Barclays AAdvantage Aviator Silver',airline:'American',annual:195,cabin:'business',cabinLabel:'Business (select)',taxes:99,note:'Companion cert after $20k spend. Applicable on select routes.',color:'aa'},
-  // Alaska
-  {n:'Bank of America Alaska Airlines Visa',airline:'Alaska',annual:75,cabin:'economy',cabinLabel:'Economy (domestic)',taxes:99,note:'Buy one fare, companion flies for $99 + taxes. Valid on Alaska-operated flights.',color:''},
+var PA = {
+  delta:      ['delta','virgin_atl','air_france','klm','korean'],
+  american:   ['aa','ba','iberia','qatar','cathay','finnair','jal','etihad','avianca'],
+  united:     ['united','lufthansa','swiss','austrian','ana','singapore','air_canada','avianca'],
+  alaska:     ['alaska','ba','cathay','jal','finnair','singapore'],
+  jetblue:    ['jetblue'],
+  southwest:  ['southwest'],
+  ba_avios:   ['ba','iberia','aa','alaska','cathay','finnair','qatar','jal'],
+  flying_blue:['air_france','klm','delta','korean','virgin_atl'],
+  emirates:   ['emirates'],
+  virgin:     ['virgin_atl','delta','air_france'],
+  chase_ur:   ['united','ba','air_france','singapore','jal','southwest','iberia'],
+  amex_mr:    ['delta','air_france','ana','singapore','etihad','virgin_atl','ba','jal'],
+  bilt:       ['united','aa','alaska','air_france','virgin_atl','jal'],
+  lifemiles:  ['avianca','united','lufthansa','ana','singapore']
+};
+
+// ── FLIGHT PROGRAMS ────────────────────────────────────────────────────────
+var FP = [
+  {id:'delta',n:'Delta SkyMiles',cpp:{eco:1.2,prem:1.4,biz:2.2,fst:2.8},
+   earn:{None:5,Silver:7,Gold:8,Platinum:9,Diamond:11},
+   sts:['None','Silver','Gold','Platinum','Diamond'],
+   sp:{None:[],Silver:['Priority boarding','25% miles bonus'],Gold:['Upgrades (standby domestic)','Priority boarding zone 3'],Platinum:['Confirmed upgrades domestic 72hr','Sky Club intl access'],Diamond:['Confirmed upgrades all routes','Sky Club unlimited','Choice benefit']}},
+  {id:'american',n:'American AAdvantage',cpp:{eco:1.5,prem:1.7,biz:2.5,fst:3.0},
+   earn:{None:5,Gold:7,Platinum:8,'Platinum Pro':9,'Executive Platinum':11},
+   sts:['None','Gold','Platinum','Platinum Pro','Executive Platinum'],
+   sp:{None:[],Gold:['Priority boarding','Preferred seats'],Platinum:['Upgrades domestic 72hr','Same-day standby free'],'Platinum Pro':['Confirmed upgrades 72hr domestic + intl','500-mile upgrades'],'Executive Platinum':['8 systemwide upgrades/yr','Confirmed upgrades','Admirals Club access']}},
+  {id:'united',n:'United MileagePlus',cpp:{eco:1.35,prem:1.6,biz:2.4,fst:2.8},
+   earn:{None:5,Silver:7,Gold:8,Platinum:9,'1K':11},
+   sts:['None','Silver','Gold','Platinum','1K'],
+   sp:{None:[],Silver:['Economy Plus seating','Priority boarding'],Gold:['Complimentary Economy Plus','Upgrades select domestic'],Platinum:['Upgrade waitlist priority','United Club passes 2/yr'],'1K':['Confirmed upgrades','United Club unlimited']}},
+  {id:'alaska',n:'Alaska Mileage Plan',cpp:{eco:1.8,prem:2.0,biz:2.8,fst:3.2},
+   earn:{None:5,MVP:6,'MVP Gold':8,'MVP Gold 75K':10},
+   sts:['None','MVP','MVP Gold','MVP Gold 75K'],
+   sp:{None:[],MVP:['Priority boarding','Companion fare discount'],
+   'MVP Gold':['Confirmed upgrades 24hr','Lounge day passes'],'MVP Gold 75K':['Confirmed upgrades 100hr','Guest lounge access']}},
+  {id:'southwest',n:'Southwest Rapid Rewards',cpp:{eco:1.5,prem:null,biz:null,fst:null},
+   earn:{None:6,'A-List':7.5,'A-List Preferred':8.1,'Companion Pass':6},
+   sts:['None','A-List','A-List Preferred','Companion Pass'],
+   sp:{None:[],'A-List':['Priority boarding A1-15','25% pts bonus'],'A-List Preferred':['Free inflight WiFi','35% pts bonus'],'Companion Pass':['Companion flies free (taxes only) all year']}},
+  {id:'jetblue',n:'JetBlue TrueBlue',cpp:{eco:1.3,prem:1.5,biz:2.2,fst:null},
+   earn:{None:3,'Mosaic 1':4,'Mosaic 2':5,'Mosaic 3':5,'Mosaic 4':6},
+   sts:['None','Mosaic 1','Mosaic 2','Mosaic 3','Mosaic 4'],
+   sp:{None:[],'Mosaic 1':['Priority boarding','Free Even More Space seats'],'Mosaic 2':['Complimentary cocktails'],'Mosaic 3':['Dedicated Mosaic support'],'Mosaic 4':['Annual companion cert','Highest upgrade priority']}},
+  {id:'ba_avios',n:'British Airways Avios',cpp:{eco:1.5,prem:1.8,biz:2.5,fst:3.0},
+   earn:{None:3,Bronze:4,Silver:6,Gold:8},
+   sts:['None','Bronze','Silver','Gold'],
+   sp:{None:[],Bronze:['Priority boarding'],Silver:['Lounge access Heathrow','2 upgrade vouchers'],Gold:['First Wing check-in','Concorde Room','4 upgrade vouchers/yr']}},
+  {id:'flying_blue',n:'Air France/KLM Flying Blue',cpp:{eco:1.4,prem:1.7,biz:2.3,fst:3.0},
+   earn:{None:4,Explorer:5,Silver:6,Gold:7,Platinum:9},
+   sts:['None','Explorer','Silver','Gold','Platinum'],
+   sp:{None:[],Explorer:['Priority boarding'],Silver:['Lounge access long-haul','Extra baggage'],Gold:['Lounge access all routes','Upgrade vouchers 2/yr'],Platinum:['Top upgrade priority','Concierge service']}},
+  {id:'emirates',n:'Emirates Skywards',cpp:{eco:1.1,prem:1.4,biz:1.6,fst:2.0},
+   earn:{None:4,Blue:4,Silver:6,Gold:8,Platinum:10},
+   sts:['None','Blue','Silver','Gold','Platinum'],
+   sp:{None:[],Blue:[],Silver:['Priority check-in','Extra baggage 5kg','First Class awards accessible (May 2025+)'],Gold:['Business lounge access','Extra baggage 10kg'],Platinum:['Chauffeur service','First Class lounge','Extra baggage 20kg']}},
+  {id:'virgin',n:'Virgin Atlantic Flying Club',cpp:{eco:1.5,prem:1.8,biz:2.5,fst:null},
+   earn:{None:3,Red:3,Silver:5,Gold:7},
+   sts:['None','Red','Silver','Gold'],
+   sp:{None:[],Red:[],Silver:['Priority boarding','Lounge access VS long-haul'],Gold:['Upper Class lounge all','Companion upgrade voucher']}},
+  {id:'chase_ur',n:'Chase Ultimate Rewards',cpp:{eco:2.0,prem:2.2,biz:2.5,fst:2.8},
+   earn:{None:0},sts:['None'],sp:{None:[]}},
+  {id:'amex_mr',n:'Amex Membership Rewards',cpp:{eco:2.0,prem:2.2,biz:2.5,fst:2.8},
+   earn:{None:0},sts:['None'],sp:{None:[]}},
+  {id:'bilt',n:'Bilt Points',cpp:{eco:2.0,prem:2.2,biz:2.5,fst:2.8},
+   earn:{None:0},sts:['None'],sp:{None:[]}},
+  {id:'lifemiles',n:'Avianca LifeMiles',cpp:{eco:1.3,prem:1.5,biz:2.2,fst:null},
+   earn:{None:3,Silver:4,Gold:5,Diamond:6},
+   sts:['None','Silver','Gold','Diamond'],
+   sp:{None:[],Silver:['Priority check-in'],Gold:['Lounge access'],Diamond:['Suite access','Companion upgrades']}}
 ];
 
-const FNC_PROGS=[
-  {n:'Hilton Honors Aspire Card',annual:550,cap:'Uncapped',tier:'luxury',brand:'Hilton',note:'Any standard room worldwide — Waldorf Astoria & Conrad included'},
-  {n:'Hilton Honors Surpass Card',annual:150,cap:'Uncapped',tier:'standard',brand:'Hilton',note:'Any standard room worldwide'},
-  {n:'Hilton Honors Business Card',annual:195,cap:'Uncapped',tier:'standard',brand:'Hilton',note:'Any standard room worldwide'},
-  {n:'Marriott Bonvoy Boundless Card',annual:95,cap:'Cat 1–5',tier:'standard',brand:'Marriott',note:'Up to Category 5 Marriott properties'},
-  {n:'Marriott Bonvoy Bountiful Card',annual:250,cap:'Cat 1–6',tier:'upscale',brand:'Marriott',note:'Up to Category 6 Marriott properties'},
-  {n:'Marriott Bonvoy Brilliant Card',annual:650,cap:'Cat 1–6 (85k cert)',tier:'luxury',brand:'Marriott',note:'85,000-point certificate — luxury tier eligible'},
-  {n:'World of Hyatt Personal Card',annual:95,cap:'Cat 1–4',tier:'standard',brand:'Hyatt',note:'Up to Category 4 Hyatt properties'},
-  {n:'World of Hyatt Business Card',annual:199,cap:'Cat 1–4',tier:'standard',brand:'Hyatt',note:'Up to Category 4 Hyatt properties'},
-  {n:'IHG One Rewards Premier Card',annual:99,cap:'Uncapped',tier:'standard',brand:'IHG',note:'Any standard IHG room worldwide'},
-  {n:'Wyndham Rewards Earner Plus Card',annual:75,cap:'Uncapped',tier:'standard',brand:'Wyndham',note:'Any standard Wyndham room worldwide'},
-  {n:'Choice Privileges Ascent Card',annual:95,cap:'Uncapped',tier:'standard',brand:'Choice',note:'Any standard Choice Hotels property'},
+// ── HOTEL PROGRAMS ─────────────────────────────────────────────────────────
+var HP = [
+  {id:'hyatt',n:'World of Hyatt',cpp:1.7,earn:5,
+   fnc:'Hyatt Personal Card (Cat 1-4), Hyatt Business Card (Cat 1-4)',
+   sts:['None','Discoverist','Explorist','Globalist'],
+   sp:{None:[],Discoverist:['Premium room upgrades','Late checkout 2pm'],
+   Explorist:['Club lounge access (select)','Confirmed suite upgrades','Late checkout 4pm'],
+   Globalist:['Confirmed suite upgrades','Club lounge access all','Free breakfast 2 guests','Late checkout 4pm guaranteed','Resort fees waived most properties']}},
+  {id:'marriott',n:'Marriott Bonvoy',cpp:0.8,earn:10,
+   fnc:'Boundless (Cat 1-5), Bountiful (Cat 1-6), Brilliant (85k cert)',
+   sts:['None','Silver','Gold','Platinum','Titanium','Ambassador'],
+   sp:{None:[],Silver:['10% bonus pts'],Gold:['Room upgrade','2pm checkout','Lounge (select)'],
+   Platinum:['Lounge access','Suite upgrade eligible','Free breakfast (select brands)','4pm checkout'],
+   Titanium:['Suite Night Awards 5/yr','Free breakfast most brands'],Ambassador:['Personal Ambassador','$100 property credit','Free breakfast']}},
+  {id:'hilton',n:'Hilton Honors',cpp:0.6,earn:10,
+   fnc:'Aspire (uncapped — Waldorf Astoria & Conrad), Surpass (uncapped), Business (uncapped)',
+   sts:['None','Silver','Gold','Diamond'],
+   sp:{None:[],Silver:['20% bonus pts'],
+   Gold:['80% bonus pts','Free continental breakfast 2 guests','Room upgrade'],
+   Diamond:['100% bonus pts','Free full breakfast 2 guests (~$30-50/day)','Lounge access','Best available room upgrade','48hr room guarantee']}},
+  {id:'ihg',n:'IHG One Rewards',cpp:0.7,earn:10,
+   fnc:'IHG Premier Card (uncapped — any IHG incl. Six Senses, InterContinental)',
+   sts:['None','Silver','Gold','Platinum','Spire','Diamond'],
+   sp:{None:[],Silver:['10% pts bonus'],Gold:['20% pts bonus'],
+   Platinum:['Room upgrade on arrival','Late checkout'],
+   Spire:['Guaranteed upgrade','Lounge access InterContinental'],Diamond:['Suite upgrades','Personal concierge']}},
+  {id:'wyndham',n:'Wyndham Rewards',cpp:0.9,earn:10,
+   fnc:'Wyndham Earner Plus (uncapped any standard room)',
+   sts:['None','Blue','Gold','Platinum','Diamond'],
+   sp:{None:[],Blue:[],Gold:['10% pts bonus'],Platinum:['Room upgrade request','Late checkout noon'],
+   Diamond:['Caesars Rewards Diamond status','Suite upgrade request','Late checkout 2pm']}},
+  {id:'choice',n:'Choice Privileges',cpp:0.6,earn:10,
+   fnc:'Choice Privileges Ascent Card (uncapped)',
+   sts:['None','Gold','Platinum','Diamond'],
+   sp:{None:[],Gold:['10% pts bonus'],Platinum:['25% pts bonus'],Diamond:['Late checkout','Upgrade request']}}
 ];
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let cnt={airline:0,hotel:0,companion:0,fnc:0};
-let lastRows={};
-let cabinSelected={};
-let tierSelected={};
+// ── COMPANION PROGRAMS ─────────────────────────────────────────────────────
+var CP = [
+  {id:'dl_res',n:'Delta Reserve — First / Delta One',airline:'Delta',annual:695,taxes:11.20,benefits:695,
+   nt:'Valid on domestic first class and Delta One routes. Best on JFK-LAX/SFO where first class runs $700-1,400 each way. Sky Club access ($695 value) makes companion cert effectively free.'},
+  {id:'dl_plat',n:'Delta Platinum — Main Cabin',airline:'Delta',annual:350,taxes:11.20,benefits:150,
+   nt:'Valid on domestic main cabin. Best on coast-to-coast routes where main cabin fares are $300+.'},
+  {id:'aa_exec',n:'Citi AAdvantage Executive — Economy',airline:'American',annual:595,taxes:11.20,benefits:900,
+   nt:'Includes Admirals Club membership ($850 value) + Global Entry/TSA credit ($100). Club membership alone justifies the fee, making the companion cert essentially free.'},
+  {id:'aa_av_red',n:'Barclays Aviator Red — Economy',airline:'American',annual:99,taxes:99,benefits:0,
+   nt:'Companion cert issued after $20k spend in calendar year. Pay $99 + taxes for companion.'},
+  {id:'aa_av_sil',n:'Barclays Aviator Silver — Select Routes',airline:'American',annual:195,taxes:99,benefits:25,
+   nt:'Issued after $20k spend. Valid on select domestic and international business class routes.'},
+  {id:'alaska',n:'Alaska Airlines Visa — Economy',airline:'Alaska',annual:75,taxes:99,benefits:0,
+   nt:'Buy one fare, companion flies for $99 + taxes on Alaska-operated flights. Annual companion fare.'}
+];
 
-// ─── NAVIGATION ───────────────────────────────────────────────────────────────
-function switchMain(t,el){
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  el.classList.add('active');
-  ['airline','hotel'].forEach(k=>document.getElementById('panel-'+k).style.display=k===t?'block':'none');
+// ── CREDIT CARDS ───────────────────────────────────────────────────────────
+var CC = [
+  {id:'none',     n:'No travel card / debit',          fl:0,  ht:0,  cpp:0,    cur:'',                   nt:'No points earned on cash payments.'},
+  {id:'csr',      n:'Chase Sapphire Reserve',           fl:3,  ht:3,  cpp:2.0,  cur:'Chase UR',           nt:'3x UR on all travel. $300 travel credit, Priority Pass lounge. Transfers 1:1 to United, Hyatt, Air France, Singapore, Southwest.'},
+  {id:'csp',      n:'Chase Sapphire Preferred',         fl:2,  ht:2,  cpp:2.0,  cur:'Chase UR',           nt:'2x UR on travel. Same transfer partners as CSR at lower fee.'},
+  {id:'ink_pref', n:'Chase Ink Business Preferred',     fl:3,  ht:3,  cpp:2.0,  cur:'Chase UR',           nt:'3x on travel (first $150k/yr). Same UR transfer value as CSR.'},
+  {id:'amex_plat',n:'Amex Platinum',                    fl:5,  ht:1,  cpp:2.0,  cur:'Amex MR',            nt:'5x MR on flights booked directly with airlines. 1x hotels. $200 airline credit, Centurion + Priority Pass lounges.'},
+  {id:'amex_gold',n:'Amex Gold',                        fl:3,  ht:1,  cpp:2.0,  cur:'Amex MR',            nt:'3x MR on flights booked directly. 4x restaurants/US groceries. Transfers to Delta, Air France, ANA, Singapore.'},
+  {id:'amex_bplat',n:'Amex Business Platinum',          fl:5,  ht:1,  cpp:2.0,  cur:'Amex MR',            nt:'5x flights/prepaid hotels via Amex Travel. 35% points rebate on business/first class.'},
+  {id:'amex_green',n:'Amex Green Card',                 fl:3,  ht:3,  cpp:2.0,  cur:'Amex MR',            nt:'3x on all travel (flights, hotels, transit). $189 CLEAR credit. Best value MR card for the annual fee.'},
+  {id:'cap1_vx',  n:'Capital One Venture X',            fl:2,  ht:2,  cpp:1.85, cur:'Capital One Miles',  nt:'2x everywhere. 10x hotels/car via C1 Travel. $300 travel credit, Priority Pass unlimited.'},
+  {id:'cap1_v',   n:'Capital One Venture',              fl:2,  ht:2,  cpp:1.85, cur:'Capital One Miles',  nt:'2x everywhere. Same transfer partners as Venture X at lower fee.'},
+  {id:'bilt',     n:'Bilt Mastercard',                  fl:2,  ht:2,  cpp:2.0,  cur:'Bilt Points',        nt:'2x travel, 3x dining, 1x rent (no annual fee!). Transfers 1:1 to United, AA, Alaska, Hyatt, Air France, Virgin Atlantic.'},
+  {id:'csr_strata',n:'Citi Strata Premier',             fl:3,  ht:3,  cpp:1.7,  cur:'Citi ThankYou',      nt:'3x on air, hotels, restaurants, groceries, gas. Transfers to Air France, Turkish, Singapore, Avianca, Cathay, Virgin Atlantic.'},
+  {id:'unit_exp', n:'United Explorer Card',             fl:2,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'2x United + hotels. 2 United Club passes/yr. Free first bag.'},
+  {id:'unit_quest',n:'United Quest Card',               fl:3,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'3x United, 2x travel/dining. $125 United purchase credit.'},
+  {id:'unit_club',n:'United Club Infinite Card',        fl:4,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'4x United, 2x travel. United Club membership included ($700 value).'},
+  {id:'hyatt_c',  n:'World of Hyatt Card',              fl:1,  ht:4,  cpp:1.7,  cur:'Hyatt Points',       nt:'4x Hyatt, 2x dining/fitness/local transit. 1 Cat 1-4 free night cert/yr.'},
+  {id:'marriott_b',n:'Marriott Bonvoy Boundless',       fl:1,  ht:6,  cpp:0.8,  cur:'Marriott Points',    nt:'6x Marriott, 2x everywhere. Free night cert (Cat 1-5)/yr. 15 Elite Night Credits/yr.'},
+  {id:'marriott_br',n:'Marriott Bonvoy Brilliant (Amex)',fl:1, ht:6,  cpp:0.8,  cur:'Marriott Points',    nt:'6x Marriott. $300 dining credit, $100 property credit, 85k free night cert/yr, Priority Pass.'},
+  {id:'hilton_a', n:'Hilton Honors Aspire (Amex)',      fl:3,  ht:14, cpp:0.6,  cur:'Hilton Points',      nt:'14x Hilton, 7x restaurants/flights. Free uncapped night cert (Waldorf, Conrad). Hilton Diamond status automatically.'},
+  {id:'hilton_s', n:'Hilton Honors Surpass (Amex)',     fl:3,  ht:12, cpp:0.6,  cur:'Hilton Points',      nt:'12x Hilton, 6x restaurants/groceries/gas. Free uncapped night cert. Hilton Gold status automatically.'},
+  {id:'delta_res',n:'Delta SkyMiles Reserve (Amex)',    fl:3,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'3x Delta flights. Sky Club access (15 visits). Annual companion cert (first/Delta One). 15k MQMs on $30k spend.'},
+  {id:'delta_plat',n:'Delta SkyMiles Platinum (Amex)',  fl:2,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'2x Delta + hotels/restaurants. Annual companion cert (main cabin). First checked bag free.'},
+  {id:'delta_gold',n:'Delta SkyMiles Gold (Amex)',      fl:2,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'2x Delta + restaurants/supermarkets. First checked bag free. Priority boarding.'},
+  {id:'aa_exec_c',n:'Citi AAdvantage Executive',        fl:2,  ht:2,  cpp:1.5,  cur:'AA Miles',           nt:'2x AA. Admirals Club membership ($850 value). Annual companion cert. Global Entry/TSA credit.'},
+  {id:'aa_plat_c',n:'Citi AAdvantage Platinum Select',  fl:2,  ht:1,  cpp:1.5,  cur:'AA Miles',           nt:'2x AA/dining/gas. Free first bag. Preferred boarding.'},
+  {id:'alaska_c', n:'Alaska Airlines Visa Signature',   fl:3,  ht:1,  cpp:1.8,  cur:'Alaska Miles',       nt:'3x Alaska. Annual $99 companion fare + taxes. Free first checked bag.'},
+  {id:'alaska_bc',n:'Alaska Airlines Visa Business',    fl:3,  ht:1,  cpp:1.8,  cur:'Alaska Miles',       nt:'3x Alaska. Same companion fare benefit as personal card.'},
+  {id:'sw_pri',   n:'Southwest Rapid Rewards Priority', fl:3,  ht:2,  cpp:1.5,  cur:'SW Points',          nt:'3x Southwest, 2x hotel/car. $75 travel credit, 7,500 bonus pts/yr. Great for Companion Pass.'},
+  {id:'sw_plus',  n:'Southwest Rapid Rewards Plus',     fl:2,  ht:2,  cpp:1.5,  cur:'SW Points',          nt:'2x Southwest. 3,000 bonus pts/yr. Entry-level SW card for Companion Pass pursuit.'},
+  {id:'jb_plus',  n:'JetBlue Plus Card',                fl:6,  ht:2,  cpp:1.3,  cur:'JetBlue Points',     nt:'6x JetBlue, 2x dining/grocery. $100 statement credit. Note: 6x only on JetBlue purchases.'},
+  {id:'virgin_r', n:'Virgin Atlantic World Elite (BofA)',fl:3, ht:1,  cpp:1.5,  cur:'Virgin Points',      nt:'3x Virgin Atlantic + Delta flights, 1.5x everywhere else. Flying Club Silver after first purchase.'},
+  {id:'avi_red',  n:'Barclays AAdvantage Aviator Red',  fl:2,  ht:1,  cpp:1.5,  cur:'AA Miles',           nt:'2x AA. Companion cert after $20k spend ($99 + taxes). Free first bag.'},
+  {id:'avi_sil',  n:'Barclays AAdvantage Aviator Silver',fl:3, ht:2,  cpp:1.5,  cur:'AA Miles',           nt:'3x AA, 2x hotels/car. Companion cert after $20k spend.'},
+  {id:'bofa_pr',  n:'BofA Premium Rewards',             fl:2,  ht:2,  cpp:1.0,  cur:'BofA Points',        nt:'2x travel/dining. $100 airline incidental credit. Value increases 25-75% with Preferred Rewards.'},
+  {id:'wf_aj',    n:'Wells Fargo Autograph Journey',    fl:4,  ht:4,  cpp:1.0,  cur:'WF Rewards',         nt:'4x airlines + hotels, 3x other travel/restaurants. Transfers to Air France, BA, Singapore, Turkish.'},
+  {id:'usb_alt',  n:'US Bank Altitude Reserve',         fl:3,  ht:3,  cpp:1.5,  cur:'Real-Time Rewards',  nt:'3x travel (incl. mobile pay). Points worth 1.5 cents toward travel. $325 travel credit.'}
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+var mode = 'flight';
+var selSt = {flight:'None', hotel:'None'};
+var selCab = 'eco';
+var selRt = 'dom';
+var selTrip = 'ow';
+var lastRows = {};
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function sv(id){ return document.getElementById(id); }
+function gv(id){ return parseFloat(sv(id)&&sv(id).value)||0; }
+function gt(id){ return sv(id)&&sv(id).value||''; }
+function si(p){ return '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.3;vertical-align:-2px">'+p+'</svg>'; }
+function chk(){ return si('<polyline points="20 6 9 17 4 12"/>'); }
+function wrn(){ return si('<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'); }
+function str(){ return si('<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'); }
+function inf(){ return si('<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'); }
+
+function benefitBlock(items){
+  if(!items||!items.length) return '';
+  var m={pos:chk(),neg:wrn(),gld:str(),neu:inf()};
+  return '<div class="blist">'+items.map(function(b){
+    return '<div class="bitem '+b.t+'"><div class="bico '+b.t+'">'+m[b.t]+'</div><div class="btxt"><div class="btit">'+b.title+'</div><div class="bdsc">'+b.desc+'</div>'+(b.tag?'<span class="btag '+b.t+'">'+b.tag+'</span>':'')+'</div></div>';
+  }).join('')+'</div>';
 }
 
-function switchSub(main,sub,el){
-  const prefix=main==='airline'?['miles','companion']:['pts','fnc'];
-  prefix.forEach(s=>{
-    document.getElementById(`sub-${main}-${s}`).style.display=s===sub?'block':'none';
-    document.getElementById(`stab-${main==='airline'?'air':'hotel'}-${s}`).classList.remove('active');
-  });
-  el.classList.add('active');
+// ── PILL HELPERS ───────────────────────────────────────────────────────────
+function setPill(grp, val, el){
+  document.querySelectorAll('.pill[data-grp="'+grp+'"]').forEach(function(p){ p.classList.remove('on'); });
+  el.classList.add('on');
+  if(grp==='status') selSt[mode]=val;
+  else if(grp==='cab') selCab=val;
+  else if(grp==='route') selRt=val;
+  else if(grp==='trip') selTrip=val;
 }
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
-const iSVG=p=>`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px">${p}</svg>`;
-const getV=id=>parseFloat(document.getElementById(id)?.value)||0;
-const getT=id=>document.getElementById(id)?.value||'';
-const progOpts=type=>PROGS[type].map((p,i)=>`<option value="${i}">${p.n} (~${p.cpp}¢/pt)</option>`).join('');
-const compOpts=()=>COMPANION_PROGS.map((p,i)=>`<option value="${i}">${p.n}</option>`).join('');
-const fncOpts=()=>FNC_PROGS.map((p,i)=>`<option value="${i}">${p.n} — ${p.cap}</option>`).join('');
-
-function cppRating(cpp){
-  if(cpp>=1.5)return{cls:'b-great',lbl:'Excellent'};
-  if(cpp>=1.0)return{cls:'b-good',lbl:'Good'};
-  if(cpp>=0.6)return{cls:'b-fair',lbl:'Fair'};
-  return{cls:'b-poor',lbl:'Poor'};
+function makeStatPills(stList, grp, def){
+  return stList.map(function(s){
+    return '<button class="pill'+(s===def?' on':'')+'" data-grp="'+grp+'" onclick="setPill(\''+grp+'\',\''+s+'\',this)">'+s+'</button>';
+  }).join('');
 }
 
-// ─── POINTS ENTRY ─────────────────────────────────────────────────────────────
-function addEntry(type){
-  const id=++cnt[type]; const isAir=type==='airline'; const p0=PROGS[type][0];
-  cabinSelected[`${type}-${id}`]='economy';
-  const el=document.createElement('div'); el.className='entry-card'; el.id=`e-${type}-${id}`;
-  el.innerHTML=`
-    <div class="entry-header"><span class="entry-num">Option ${id}</span>
-      <button class="rm" onclick="removeEl('e-${type}-${id}')" aria-label="Remove">${iSVG('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>')}</button></div>
-    <div class="grid2">
-      <div class="fl"><label class="lbl">Program</label>
-        <select id="prog-${type}-${id}" onchange="syncProg('${type}',${id})">${progOpts(type)}</select></div>
-      <div class="fl"><label class="lbl">Label / trip name</label>
-        <input type="text" id="lbl-${type}-${id}" placeholder="${isAir?'e.g. NYC → LAX Business':'e.g. Park Hyatt NYC 1 night'}"></div>
-    </div>
-    ${isAir?`<div class="fl" style="margin-bottom:12px"><label class="lbl">Cabin class</label>
-      <div class="pill-group">
-        <button class="pill econ active" data-entry="${type}-${id}" data-cab="economy"  onclick="selectCabin('${type}',${id},'economy')">Economy</button>
-        <button class="pill prem"        data-entry="${type}-${id}" data-cab="premium"  onclick="selectCabin('${type}',${id},'premium')">Prem. Economy</button>
-        <button class="pill biz"         data-entry="${type}-${id}" data-cab="business" onclick="selectCabin('${type}',${id},'business')">Business</button>
-        <button class="pill first"       data-entry="${type}-${id}" data-cab="first"    onclick="selectCabin('${type}',${id},'first')">First Class</button>
-      </div></div>`:''}
-    <div class="grid3">
-      <div class="fl"><label class="lbl">${isAir?'Miles':'Points'} required</label>
-        <input type="number" id="pts-${type}-${id}" placeholder="${isAir?'30000':'20000'}" min="0"></div>
-      <div class="fl"><label class="lbl">Cash price ($)</label>
-        <input type="number" id="cash-${type}-${id}" placeholder="${isAir?'650':'350'}" min="0"></div>
-      <div class="fl"><label class="lbl">Your value (¢/pt)</label>
-        <input type="number" id="cpp-${type}-${id}" value="${p0.cpp}" step="0.05" min="0.1" max="20"></div>
-    </div>
-    <div class="adv-toggle" onclick="toggleAdv('${type}-${id}')" id="adv-toggle-${type}-${id}">
-      ${iSVG('<polyline points="6 9 12 15 18 9"/>')} Fees, taxes &amp; earning (optional)</div>
-    <div class="adv-body" id="adv-${type}-${id}">
-      <div class="grid3">
-        <div class="fl"><label class="lbl">Award fees &amp; taxes ($)</label><input type="number" id="fees-${type}-${id}" value="0" min="0"></div>
-        <div class="fl"><label class="lbl">Pts per $1 earned if cash</label><input type="number" id="earnr-${type}-${id}" value="${p0.earn}" min="0" step="0.5"></div>
-        <div class="fl"><label class="lbl">Notes</label><input type="text" id="note-${type}-${id}" placeholder="Optional"></div>
-      </div></div>`;
-  document.getElementById('entries-'+type).appendChild(el);
+// ── MODE ───────────────────────────────────────────────────────────────────
+function setMode(m, el){
+  mode = m;
+  document.querySelectorAll('.mtab').forEach(function(b){ b.classList.remove('on'); });
+  el.classList.add('on');
+  selSt = {flight:'None', hotel:'None'};
+  selCab = 'eco'; selRt = 'dom'; selTrip = 'ow';
+  buildForm();
+  sv('result').innerHTML = '';
 }
 
-function selectCabin(type,id,cab){
-  cabinSelected[`${type}-${id}`]=cab;
-  document.querySelectorAll(`.pill[data-entry="${type}-${id}"]`).forEach(p=>p.classList.toggle('active',p.dataset.cab===cab));
-  document.getElementById(`cpp-${type}-${id}`).value=CABIN_CPP[cab];
-}
+// ── FORM ───────────────────────────────────────────────────────────────────
+function buildForm(){
+  var f = sv('fields');
+  if(!f) return;
 
-function syncProg(type,id){
-  const idx=parseInt(document.getElementById(`prog-${type}-${id}`).value);
-  const p=PROGS[type][idx];
-  const cab=cabinSelected[`${type}-${id}`]||'economy';
-  document.getElementById(`cpp-${type}-${id}`).value=type==='airline'?CABIN_CPP[cab]:p.cpp;
-  const e=document.getElementById(`earnr-${type}-${id}`); if(e) e.value=p.earn;
-}
-
-// ─── COMPANION CERTIFICATE ENTRY ─────────────────────────────────────────────
-function addCompanion(){
-  const id=++cnt.companion; const p0=COMPANION_PROGS[0];
-  const el=document.createElement('div'); el.className='entry-card'; el.id=`comp-entry-${id}`;
-  el.innerHTML=`
-    <div class="entry-header"><span class="entry-num">Certificate ${id}</span>
-      <button class="rm" onclick="removeEl('comp-entry-${id}')" aria-label="Remove">${iSVG('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>')}</button></div>
-    <div class="grid2">
-      <div class="fl"><label class="lbl">Companion certificate card</label>
-        <select id="comp-prog-${id}" onchange="syncComp(${id})">${compOpts()}</select></div>
-      <div class="fl"><label class="lbl">Route / trip</label>
-        <input type="text" id="comp-lbl-${id}" placeholder="e.g. NYC → LAX round-trip"></div>
-    </div>
-    <div id="comp-note-${id}" style="font-size:12px;color:var(--text-3);margin:-4px 0 12px;padding:8px 10px;background:var(--surface2);border-radius:6px">${p0.note}</div>
-    <div class="grid4">
-      <div class="fl"><label class="lbl">Your ticket price ($)</label>
-        <input type="number" id="comp-main-${id}" placeholder="e.g. 450" min="0"></div>
-      <div class="fl"><label class="lbl">Companion cash value ($)</label>
-        <input type="number" id="comp-val-${id}" placeholder="e.g. 450" min="0"></div>
-      <div class="fl"><label class="lbl">Taxes/fees you pay ($)</label>
-        <input type="number" id="comp-taxes-${id}" value="${p0.taxes}" min="0" step="0.01"></div>
-      <div class="fl"><label class="lbl">Card annual fee ($)</label>
-        <input type="number" id="comp-annual-${id}" value="${p0.annual}" min="0"></div>
-    </div>
-    <div class="adv-toggle" onclick="toggleAdv('comp-adv-${id}')" id="adv-toggle-comp-adv-${id}">
-      ${iSVG('<polyline points="6 9 12 15 18 9"/>')} Other card benefits (optional)</div>
-    <div class="adv-body" id="adv-comp-adv-${id}">
-      <div class="grid2">
-        <div class="fl"><label class="lbl">Other benefits value you use ($)</label>
-          <input type="number" id="comp-benefits-${id}" value="0" min="0" placeholder="Lounge, credits…"></div>
-        <div class="fl"><label class="lbl">Notes</label>
-          <input type="text" id="comp-note2-${id}" placeholder="Optional note"></div>
-      </div></div>`;
-  document.getElementById('entries-companion').appendChild(el);
-}
-
-function syncComp(id){
-  const idx=parseInt(document.getElementById(`comp-prog-${id}`).value);
-  const p=COMPANION_PROGS[idx];
-  document.getElementById(`comp-annual-${id}`).value=p.annual;
-  document.getElementById(`comp-taxes-${id}`).value=p.taxes;
-  document.getElementById(`comp-note-${id}`).textContent=p.note;
-}
-
-// ─── FREE NIGHT CERT ENTRY ────────────────────────────────────────────────────
-function addFNC(){
-  const id=++cnt.fnc; const p0=FNC_PROGS[0]; tierSelected[id]='standard';
-  const el=document.createElement('div'); el.className='entry-card'; el.id=`fnc-entry-${id}`;
-  el.innerHTML=`
-    <div class="entry-header"><span class="entry-num">Certificate ${id}</span>
-      <button class="rm" onclick="removeEl('fnc-entry-${id}')" aria-label="Remove">${iSVG('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>')}</button></div>
-    <div class="grid2">
-      <div class="fl"><label class="lbl">Certificate / card program</label>
-        <select id="fnc-prog-${id}" onchange="syncFNC(${id})">${fncOpts()}</select></div>
-      <div class="fl"><label class="lbl">Property you're booking</label>
-        <input type="text" id="fnc-lbl-${id}" placeholder="e.g. Waldorf Astoria Maldives"></div>
-    </div>
-    <div class="fl" style="margin-bottom:12px"><label class="lbl">Property tier</label>
-      <div class="pill-group">
-        <button class="pill std active" data-fnc="${id}" data-tier="standard" onclick="selectTier(${id},'standard')">Standard / Select</button>
-        <button class="pill upscale"    data-fnc="${id}" data-tier="upscale"  onclick="selectTier(${id},'upscale')">Upscale / Upper</button>
-        <button class="pill lux"        data-fnc="${id}" data-tier="luxury"   onclick="selectTier(${id},'luxury')">Luxury (Waldorf, Conrad)</button>
-      </div></div>
-    <div class="grid4">
-      <div class="fl"><label class="lbl">Room cash rate ($/night)</label>
-        <input type="number" id="fnc-room-${id}" placeholder="e.g. 900" min="0"></div>
-      <div class="fl"><label class="lbl">Card annual fee ($)</label>
-        <input type="number" id="fnc-annual-${id}" value="${p0.annual}" min="0"></div>
-      <div class="fl"><label class="lbl">Other benefits value ($)</label>
-        <input type="number" id="fnc-benefits-${id}" value="0" min="0"></div>
-      <div class="fl"><label class="lbl">Nights used per year</label>
-        <input type="number" id="fnc-nights-${id}" value="1" min="1" max="10"></div>
-    </div>
-    <div id="fnc-cap-note-${id}" style="font-size:12px;color:var(--text-3);margin:-4px 0 12px;padding:8px 10px;background:var(--surface2);border-radius:6px">${p0.note}</div>
-    <div class="adv-toggle" onclick="toggleAdv('fnc-adv-${id}')" id="adv-toggle-fnc-adv-${id}">
-      ${iSVG('<polyline points="6 9 12 15 18 9"/>')} Resort fees &amp; notes (optional)</div>
-    <div class="adv-body" id="adv-fnc-adv-${id}">
-      <div class="grid2">
-        <div class="fl"><label class="lbl">Resort / destination fees ($)</label>
-          <input type="number" id="fnc-fees-${id}" value="0" min="0"></div>
-        <div class="fl"><label class="lbl">Notes</label>
-          <input type="text" id="fnc-note-${id}" placeholder="Optional note"></div>
-      </div></div>`;
-  document.getElementById('entries-fnc').appendChild(el);
-}
-
-function selectTier(id,tier){
-  tierSelected[id]=tier;
-  document.querySelectorAll(`.pill[data-fnc="${id}"]`).forEach(p=>p.classList.toggle('active',p.dataset.tier===tier));
-}
-function syncFNC(id){
-  const idx=parseInt(document.getElementById(`fnc-prog-${id}`).value);
-  const p=FNC_PROGS[idx];
-  document.getElementById(`fnc-annual-${id}`).value=p.annual;
-  document.getElementById(`fnc-cap-note-${id}`).textContent=p.note;
-}
-
-// ─── UTILITY ─────────────────────────────────────────────────────────────────
-function removeEl(id){const el=document.getElementById(id);if(el)el.remove();}
-function toggleAdv(id){
-  const b=document.getElementById(`adv-${id}`),t=document.getElementById(`adv-toggle-${id}`);
-  const open=b.style.display==='none'||b.style.display==='';
-  b.style.display=open?'block':'none'; t.classList.toggle('open',open);
-}
-function clearSection(type){
-  const map={airline:['entries-airline','results-airline'],hotel:['entries-hotel','results-hotel'],companion:['entries-companion','results-companion'],fnc:['entries-fnc','results-fnc']};
-  if(map[type]){document.getElementById(map[type][0]).innerHTML='';document.getElementById(map[type][1]).innerHTML='';}
-  cnt[type]=0; lastRows[type]=null;
-  const b=document.getElementById(`ai-btn-${type}`); if(b)b.disabled=true;
-}
-
-// ─── POINTS COMPARE ──────────────────────────────────────────────────────────
-function compare(type){
-  const entries=document.getElementById('entries-'+type).querySelectorAll('.entry-card');
-  const rows=[];
-  entries.forEach(entry=>{
-    const m=entry.id.match(/\d+$/); if(!m)return;
-    const id=m[0];
-    const idx=parseInt(document.getElementById(`prog-${type}-${id}`).value);
-    const prog=PROGS[type][idx];
-    const label=getT(`lbl-${type}-${id}`)||prog.n;
-    const cabin=cabinSelected[`${type}-${id}`]||null;
-    const cpp=getV(`cpp-${type}-${id}`)||prog.cpp;
-    const pts=getV(`pts-${type}-${id}`),cash=getV(`cash-${type}-${id}`);
-    const fees=getV(`fees-${type}-${id}`),earnRate=getV(`earnr-${type}-${id}`);
-    const note=getT(`note-${type}-${id}`);
-    if(!pts||!cash)return;
-    const ptValue=(pts*cpp)/100,netAward=ptValue+fees;
-    const ptsEarned=Math.round(cash*earnRate),earnVal=(ptsEarned*cpp)/100;
-    const netCash=cash-earnVal,trueSave=netCash-netAward,effCpp=(cash/pts)*100;
-    rows.push({label,prog:prog.n,cabin,cpp,pts,cash,fees,note,ptValue,netAward,netCash,trueSave,effCpp,ptsEarned,earnVal,verdict:trueSave>0});
-  });
-  const out=document.getElementById('results-'+type);
-  if(!rows.length){out.innerHTML=emptyMsg();return;}
-  lastRows[type]=rows;
-  document.getElementById(`ai-btn-${type}`).disabled=false;
-  const bi=rows.reduce((b,r,i,a)=>r.trueSave>a[b].trueSave?i:b,0);
-  const winners=rows.filter(r=>r.verdict).length,avgCpp=rows.reduce((a,r)=>a+r.effCpp,0)/rows.length;
-  let html=`<div class="results-section">
-  <div class="section-title">Summary</div>
-  <div class="metrics">
-    <div class="mc"><div class="mc-num">${rows.length}</div><div class="mc-lbl">Options</div></div>
-    <div class="mc"><div class="mc-num ${winners>0?'green':''}">${winners}</div><div class="mc-lbl">Points win</div></div>
-    <div class="mc"><div class="mc-num">${avgCpp.toFixed(2)}¢</div><div class="mc-lbl">Avg eff. cpp</div></div>
-    <div class="mc"><div class="mc-num ${rows[bi].trueSave>=0?'green':'red'}">${rows[bi].trueSave>=0?'+':''}$${Math.abs(rows[bi].trueSave).toFixed(2)}</div><div class="mc-lbl">Best true savings</div></div>
-  </div>
-  <div id="ai-result-${type}"></div>
-  <div class="section-title">Side-by-side comparison
-    <button class="export-btn" onclick="exportCSV('${type}')">
-      ${iSVG('<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>')} Export CSV
-    </button>
-  </div>
-  <div class="table-wrap"><table><thead><tr>
-    <th>Option</th><th>Program</th>${type==='airline'?'<th>Cabin</th>':''}
-    <th>Points</th><th>Cash</th><th>Pts value</th><th>Fees</th><th>Net award</th><th>Pts if cash</th><th>True savings</th><th>Eff. cpp</th><th>Verdict</th>
-  </tr></thead><tbody>`;
-  rows.forEach((r,i)=>{
-    const rt=cppRating(r.effCpp),best=i===bi;
-    const cb=r.cabin?`<span class="badge ${CABIN_CLASS[r.cabin]}">${CABIN_LABEL[r.cabin]}</span>`:'';
-    html+=`<tr class="${best?'best':''}">
-      <td style="font-weight:500">${r.label}${best?' <span class="badge b-star">★ Best</span>':''}${r.note?`<br><span style="font-size:11px;color:var(--text-3)">${r.note}</span>`:''}</td>
-      <td style="color:var(--text-2);font-size:11px">${r.prog}</td>
-      ${type==='airline'?`<td>${cb}</td>`:''}
-      <td style="font-family:'DM Mono',monospace">${r.pts.toLocaleString()}</td>
-      <td style="font-family:'DM Mono',monospace">$${r.cash.toFixed(2)}</td>
-      <td style="font-family:'DM Mono',monospace">$${r.ptValue.toFixed(2)}</td>
-      <td style="font-family:'DM Mono',monospace;color:${r.fees>0?'var(--danger)':'var(--text-3)'}">$${r.fees.toFixed(2)}</td>
-      <td style="font-family:'DM Mono',monospace;font-weight:500">$${r.netAward.toFixed(2)}</td>
-      <td style="color:var(--text-2);font-size:11px">+${r.ptsEarned.toLocaleString()}<br><span style="font-family:'DM Mono',monospace">($${r.earnVal.toFixed(2)})</span></td>
-      <td class="${r.trueSave>=0?'pos':'neg'}" style="font-family:'DM Mono',monospace">${r.trueSave>=0?'+':''}$${Math.abs(r.trueSave).toFixed(2)}</td>
-      <td><span class="badge ${rt.cls}">${r.effCpp.toFixed(2)}¢ ${rt.lbl}</span></td>
-      <td><span class="badge ${r.verdict?'b-win':'b-cash'}">${r.verdict?'Use points':'Pay cash'}</span></td>
-    </tr>`;
-  });
-  html+=`</tbody></table></div>
-  <div class="section-title">Break-even analysis</div><div class="be-grid">`;
-  rows.forEach(r=>{
-    const be=(r.cash/r.pts)*100,pass=r.cpp>=be;
-    html+=`<div class="be-card"><div class="be-card-title">${r.label}${r.cabin?` <span class="badge ${CABIN_CLASS[r.cabin]}" style="font-size:10px">${CABIN_LABEL[r.cabin]}</span>`:''}</div>
-      <div class="be-row"><span class="be-key">Break-even cpp needed</span><span class="be-val">${be.toFixed(2)}¢</span></div>
-      <div class="be-row"><span class="be-key">Your cpp</span><span class="be-val ${pass?'be-pass':'be-fail'}">${r.cpp.toFixed(2)}¢ ${pass?'✓':'✗'}</span></div>
-      <div class="be-row"><span class="be-key">Cash to break even</span><span class="be-val">$${r.netAward.toFixed(2)}</span></div>
-      <div class="be-row"><span class="be-key">Pts earned if paid cash</span><span class="be-val">+${r.ptsEarned.toLocaleString()} ($${r.earnVal.toFixed(2)})</span></div>
-    </div>`;
-  });
-  html+=`</div><div class="note-box">
-    <strong>Effective cpp</strong>: Excellent ≥1.5¢ · Good ≥1.0¢ · Fair ≥0.6¢ · Poor &lt;0.6¢ &nbsp;|&nbsp;
-    <strong>True savings</strong>: net cash cost minus net award cost. Positive = points win.
-  </div></div>`;
-  out.innerHTML=html;
-}
-
-// ─── COMPANION COMPARE ────────────────────────────────────────────────────────
-function compareCompanion(){
-  const entries=document.getElementById('entries-companion').querySelectorAll('.entry-card');
-  const results=[];
-  entries.forEach(entry=>{
-    const m=entry.id.match(/\d+$/); if(!m)return;
-    const id=m[0];
-    const idx=parseInt(document.getElementById(`comp-prog-${id}`).value);
-    const prog=COMPANION_PROGS[idx];
-    const route=getT(`comp-lbl-${id}`)||prog.airline+' route';
-    const mainFare=getV(`comp-main-${id}`);
-    const compVal=getV(`comp-val-${id}`);
-    const taxes=getV(`comp-taxes-${id}`);
-    const annual=getV(`comp-annual-${id}`);
-    const benefits=getV(`comp-benefits-${id}`);
-    const note=getT(`comp-note2-${id}`);
-    if(!compVal)return;
-    const netFee=annual-benefits;
-    const netValue=compVal-taxes-netFee;
-    const valueMult=compVal/Math.max(netFee+taxes,1);
-    let verdict,vClass;
-    if(netValue>=300){verdict='Outstanding value';vClass='comp-great';}
-    else if(netValue>=100){verdict='Strong value';vClass='comp-good';}
-    else if(netValue>=0){verdict='Marginal value';vClass='fair';}
-    else{verdict='Not worth it';vClass='poor';}
-    results.push({route,prog:prog.n,airline:prog.airline,cabin:prog.cabinLabel,annual,benefits,taxes,netFee,mainFare,compVal,netValue,valueMult,note,verdict,vClass,color:prog.color});
-  });
-  const out=document.getElementById('results-companion');
-  if(!results.length){out.innerHTML=emptyMsg();return;}
-  lastRows.companion=results;
-  document.getElementById('ai-btn-companion').disabled=false;
-  const bi=results.reduce((b,r,i,a)=>r.netValue>a[b].netValue?i:b,0);
-  const avgMult=results.reduce((a,r)=>a+r.valueMult,0)/results.length;
-  const winners=results.filter(r=>r.netValue>0).length;
-  let html=`<div class="results-section">
-  <div class="section-title">Summary</div>
-  <div class="metrics">
-    <div class="mc"><div class="mc-num">${results.length}</div><div class="mc-lbl">Certs analyzed</div></div>
-    <div class="mc"><div class="mc-num ${winners>0?'orange':''}">${winners}</div><div class="mc-lbl">Worth using</div></div>
-    <div class="mc"><div class="mc-num">${avgMult.toFixed(1)}x</div><div class="mc-lbl">Avg value multiple</div></div>
-    <div class="mc"><div class="mc-num ${results[bi].netValue>=0?'orange':'red'}">${results[bi].netValue>=0?'+':''}$${Math.abs(results[bi].netValue).toFixed(0)}</div><div class="mc-lbl">Best net value</div></div>
-  </div>
-  <div id="ai-result-companion"></div>
-  <div class="section-title">Certificate breakdown</div>`;
-  results.forEach((r,i)=>{
-    const best=i===bi;
-    const airBadge=`<span class="badge ${r.color==='delta'?'b-delta':r.color==='aa'?'b-poor':'b-good'}">${r.airline}</span>`;
-    html+=`<div class="cert-card ${best?'winner-orange':''}">
-      <div class="cert-header">
-        <div>
-          <div class="cert-title">${r.route} ${best?'<span class="badge b-star">★ Best value</span>':''}</div>
-          <div class="cert-sub">${r.prog} &nbsp;·&nbsp; ${airBadge} &nbsp;·&nbsp; <span class="badge b-companion">${r.cabin}</span></div>
-        </div>
-        <span class="badge ${r.netValue>=100?'b-win':'b-cash'}" style="font-size:13px;padding:6px 12px">${r.verdict}</span>
-      </div>
-      <div class="cert-stats">
-        <div class="cert-stat"><div class="cert-stat-num orange">$${r.compVal.toLocaleString()}</div><div class="cert-stat-lbl">Companion ticket value</div></div>
-        <div class="cert-stat"><div class="cert-stat-num">$${(r.netFee+r.taxes).toFixed(0)}</div><div class="cert-stat-lbl">Your effective cost</div></div>
-        <div class="cert-stat"><div class="cert-stat-num ${r.netValue>=0?'pos':'neg'}">${r.netValue>=0?'+':''}$${Math.abs(r.netValue).toFixed(0)}</div><div class="cert-stat-lbl">Net value saved</div></div>
-      </div>
-      <div class="cert-divider">
-        ${r.mainFare>0?`<div class="cert-row"><span class="cert-key">Your ticket price</span><span class="cert-val">$${r.mainFare.toFixed(2)}</span></div>`:''}
-        <div class="cert-row"><span class="cert-key">Companion ticket cash value</span><span class="cert-val">$${r.compVal.toFixed(2)}</span></div>
-        <div class="cert-row"><span class="cert-key">Taxes &amp; fees you pay for companion</span><span class="cert-val" style="color:var(--text-2)">$${r.taxes.toFixed(2)}</span></div>
-        <div class="cert-row"><span class="cert-key">Card annual fee</span><span class="cert-val">$${r.annual}</span></div>
-        <div class="cert-row"><span class="cert-key">Other card benefits you use</span><span class="cert-val">− $${r.benefits}</span></div>
-        <div class="cert-row"><span class="cert-key">Net annual fee (after benefits)</span><span class="cert-val">$${r.netFee.toFixed(0)}</span></div>
-        <div class="cert-row"><span class="cert-key">Total effective cert cost (fee + taxes)</span><span class="cert-val">$${(r.netFee+r.taxes).toFixed(0)}</span></div>
-        <div class="cert-row"><span class="cert-key">Value multiple</span><span class="cert-val">${r.valueMult.toFixed(1)}x</span></div>
-        ${r.note?`<div class="cert-row"><span class="cert-key">Notes</span><span class="cert-val" style="font-family:'DM Sans',sans-serif">${r.note}</span></div>`:''}
-      </div>
-      <div class="cert-verdict ${r.vClass}">
-        ${r.netValue>0?'✓':''} ${r.verdict}${r.netValue>0?` — companion worth <strong>$${r.compVal}</strong>, saving you <strong>$${r.netValue.toFixed(0)}</strong> vs two full-price tickets`:'. The cert cost exceeds the companion ticket value at this fare.'}.
-      </div>
-    </div>`;
-  });
-  html+=`<div class="note-box">
-    <strong>Net value</strong>: companion ticket cash price minus taxes paid minus net annual fee. Positive = cert worth using.<br>
-    <strong>Value multiple</strong>: companion ticket value ÷ total effective cost. Aim for 2x minimum.<br>
-    <strong>Delta Reserve tip</strong>: the cert shines most on transcontinental first class routes (JFK–LAX, JFK–SFO) where first class cash fares often exceed $600–$900 each way.
-  </div></div>`;
-  out.innerHTML=html;
-}
-
-// ─── FREE NIGHT CERT COMPARE ──────────────────────────────────────────────────
-function compareFNC(){
-  const entries=document.getElementById('entries-fnc').querySelectorAll('.entry-card');
-  const results=[];
-  entries.forEach(entry=>{
-    const m=entry.id.match(/\d+$/); if(!m)return;
-    const id=m[0];
-    const idx=parseInt(document.getElementById(`fnc-prog-${id}`).value);
-    const prog=FNC_PROGS[idx];
-    const property=getT(`fnc-lbl-${id}`)||prog.brand+' property';
-    const tier=tierSelected[id]||'standard';
-    const roomRate=getV(`fnc-room-${id}`);
-    const annual=getV(`fnc-annual-${id}`),benefits=getV(`fnc-benefits-${id}`);
-    const nights=Math.max(1,getV(`fnc-nights-${id}`)||1),resortFees=getV(`fnc-fees-${id}`);
-    const note=getT(`fnc-note-${id}`);
-    if(!roomRate)return;
-    const netFee=annual-benefits,certCost=netFee/nights;
-    const netValue=roomRate-certCost-resortFees,valueMult=roomRate/Math.max(certCost,1);
-    let verdict,vClass;
-    if(netValue>=400){verdict='Outstanding value';vClass='great';}
-    else if(netValue>=150){verdict='Strong value';vClass='good';}
-    else if(netValue>=0){verdict='Marginal value';vClass='fair';}
-    else{verdict='Not worth it';vClass='poor';}
-    results.push({property,prog:prog.n,tier,cap:prog.cap,brand:prog.brand,note,roomRate,annual,benefits,nights,resortFees,netFee,certCost,netValue,valueMult,verdict,vClass});
-  });
-  const out=document.getElementById('results-fnc');
-  if(!results.length){out.innerHTML=emptyMsg();return;}
-  lastRows.fnc=results;
-  document.getElementById('ai-btn-fnc').disabled=false;
-  const bi=results.reduce((b,r,i,a)=>r.netValue>a[b].netValue?i:b,0);
-  const avgMult=results.reduce((a,r)=>a+r.valueMult,0)/results.length;
-  const winners=results.filter(r=>r.netValue>0).length;
-  let html=`<div class="results-section">
-  <div class="section-title">Summary</div>
-  <div class="metrics">
-    <div class="mc"><div class="mc-num">${results.length}</div><div class="mc-lbl">Certs analyzed</div></div>
-    <div class="mc"><div class="mc-num teal">${winners}</div><div class="mc-lbl">Worth using</div></div>
-    <div class="mc"><div class="mc-num">${avgMult.toFixed(1)}x</div><div class="mc-lbl">Avg value multiple</div></div>
-    <div class="mc"><div class="mc-num ${results[bi].netValue>=0?'teal':'red'}">${results[bi].netValue>=0?'+':''}$${Math.abs(results[bi].netValue).toFixed(0)}</div><div class="mc-lbl">Best net value</div></div>
-  </div>
-  <div id="ai-result-fnc"></div>
-  <div class="section-title">Certificate analysis</div>`;
-  results.forEach((r,i)=>{
-    const best=i===bi;
-    const tierCls=r.tier==='luxury'?'b-lux':r.tier==='upscale'?'b-upscale':'b-econ';
-    const tierLbl=r.tier==='luxury'?'Luxury':r.tier==='upscale'?'Upscale':'Standard';
-    html+=`<div class="cert-card ${best?'winner':''}">
-      <div class="cert-header">
-        <div>
-          <div class="cert-title">${r.property} ${best?'<span class="badge b-star">★ Best value</span>':''}</div>
-          <div class="cert-sub">${r.prog} &nbsp;·&nbsp; <span class="badge ${tierCls}">${tierLbl}</span> &nbsp;·&nbsp; <span class="badge ${r.cap==='Uncapped'?'b-uncapped':'b-capped'}">${r.cap}</span></div>
-        </div>
-        <span class="badge b-fnc" style="font-size:13px;padding:6px 12px">${r.verdict}</span>
-      </div>
-      <div class="cert-stats">
-        <div class="cert-stat"><div class="cert-stat-num teal">$${r.roomRate.toLocaleString()}</div><div class="cert-stat-lbl">Room cash value / night</div></div>
-        <div class="cert-stat"><div class="cert-stat-num">$${r.certCost.toFixed(0)}</div><div class="cert-stat-lbl">Effective cert cost</div></div>
-        <div class="cert-stat"><div class="cert-stat-num ${r.netValue>=0?'pos':'neg'}">${r.netValue>=0?'+':''}$${Math.abs(r.netValue).toFixed(0)}</div><div class="cert-stat-lbl">Net value saved</div></div>
-      </div>
-      <div class="cert-divider">
-        <div class="cert-row"><span class="cert-key">Card annual fee</span><span class="cert-val">$${r.annual}</span></div>
-        <div class="cert-row"><span class="cert-key">Other benefits you use</span><span class="cert-val">− $${r.benefits}</span></div>
-        <div class="cert-row"><span class="cert-key">Net annual fee</span><span class="cert-val">$${r.netFee.toFixed(0)}</span></div>
-        <div class="cert-row"><span class="cert-key">Nights used per year</span><span class="cert-val">${r.nights}</span></div>
-        <div class="cert-row"><span class="cert-key">Effective cost per certificate</span><span class="cert-val">$${r.certCost.toFixed(0)}</span></div>
-        ${r.resortFees>0?`<div class="cert-row"><span class="cert-key">Resort / destination fees</span><span class="cert-val" style="color:var(--danger)">$${r.resortFees}</span></div>`:''}
-        <div class="cert-row"><span class="cert-key">Value multiple</span><span class="cert-val">${r.valueMult.toFixed(1)}x</span></div>
-        ${!( r.cap==='Uncapped'||r.tier==='standard')?`<div class="cert-row"><span class="cert-key" style="color:var(--danger)">⚠ Category cap may restrict luxury properties</span><span class="cert-val"></span></div>`:''}
-        ${r.note?`<div class="cert-row"><span class="cert-key">Program note</span><span class="cert-val" style="font-family:'DM Sans',sans-serif;font-size:12px">${r.note}</span></div>`:''}
-      </div>
-      <div class="cert-verdict ${r.vClass}">
-        ${r.netValue>=150?'✓':''} ${r.verdict} — room worth <strong>${r.valueMult.toFixed(1)}x</strong> the cert cost${r.netValue>0?`, saving you <strong>$${r.netValue.toFixed(0)}</strong>`:'. Consider cash or points instead.'}.
-      </div>
-    </div>`;
-  });
-  html+=`<div class="note-box">
-    <strong>Effective cert cost</strong>: annual fee minus other benefits used, divided by nights the cert is used.<br>
-    <strong>Net value</strong>: room rate minus cert cost minus resort fees. Higher = better.<br>
-    <strong>Hilton Aspire tip</strong>: uncapped for standard rooms — Waldorf Astoria &amp; Conrad qualify, making $500–$1,500/night rooms redeemable on a $550/year card.
-  </div></div>`;
-  out.innerHTML=html;
-}
-
-// ─── AI INSIGHTS ──────────────────────────────────────────────────────────────
-async function getAIInsights(type){
-  const rows=lastRows[type]; if(!rows||!rows.length)return;
-  const aiId=`ai-result-${type}`;
-  const aiDiv=document.getElementById(aiId);
-  const btn=document.getElementById(`ai-btn-${type}`);
-  btn.disabled=true;
-  if(!aiDiv)return;
-  aiDiv.innerHTML=`<div class="ai-card"><div class="ai-header">
-    <div class="ai-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
-    <div><div class="ai-title">AI Insights</div><div class="ai-subtitle">Analyzing your data…</div></div></div>
-    <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Thinking…</span></div></div>`;
-
-  let prompt='';
-  if(type==='airline'||type==='hotel'){
-    const summary=rows.map((r,i)=>`Option ${i+1}: "${r.label}"${r.cabin?` (${CABIN_LABEL[r.cabin]})`:''}
-  Program: ${r.prog} | Points: ${r.pts.toLocaleString()} | Cash: $${r.cash} | Fees: $${r.fees}
-  Effective cpp: ${r.effCpp.toFixed(2)}¢ | True savings: $${r.trueSave.toFixed(2)} | Verdict: ${r.verdict?'Use points':'Pay cash'}`).join('\n\n');
-    prompt=`You are a loyalty points expert. Analyze these ${type==='airline'?'airline miles':'hotel points'} redemptions:\n\n${summary}\n\nProvide: Overall assessment, cabin class strategy (if airline), best option with numbers, red flags, one tactical tip. Labels: "Overall:", "Best option:", "Cabin strategy:", "Red flags:", "Tip:". Under 250 words, no markdown # headers.`;
-  } else if(type==='companion'){
-    const summary=rows.map((r,i)=>`Cert ${i+1}: ${r.route} via ${r.prog} (${r.airline})
-  Companion value: $${r.compVal} | Taxes paid: $${r.taxes} | Net fee: $${r.netFee} | Net value: $${r.netValue.toFixed(0)} | Multiple: ${r.valueMult.toFixed(1)}x | Verdict: ${r.verdict}`).join('\n\n');
-    prompt=`You are a companion certificate expert for Delta and American Airlines. Analyze:\n\n${summary}\n\nProvide: Overall assessment, best cert with numbers, when companion certs offer peak value (high-fare routes, premium cabins), any red flags, one tip. Labels: "Overall:", "Best cert:", "Peak value routes:", "Red flags:", "Tip:". Under 250 words, no markdown # headers.`;
-  } else if(type==='fnc'){
-    const summary=rows.map((r,i)=>`Cert ${i+1}: ${r.property} via ${r.prog}
-  Room rate: $${r.roomRate} | Cert cost: $${r.certCost.toFixed(0)} | Net value: $${r.netValue.toFixed(0)} | Multiple: ${r.valueMult.toFixed(1)}x | Cap: ${r.cap} | Tier: ${r.tier} | Verdict: ${r.verdict}`).join('\n\n');
-    prompt=`You are a hotel free night certificate expert. Analyze:\n\n${summary}\n\nProvide: Overall assessment, best cert with numbers, uncapped vs capped strategy (Hilton Aspire at Waldorf/Conrad), any red flags (resort fees, category caps), one tactical tip. Labels: "Overall:", "Best cert:", "Uncapped strategy:", "Red flags:", "Tip:". Under 260 words, no markdown # headers.`;
+  if(mode==='flight'){
+    var pOpts = FP.map(function(p,i){ return '<option value="'+i+'">'+p.n+'</option>'; }).join('');
+    var cOpts = CC.map(function(c,i){ return '<option value="'+i+'">'+c.n+'</option>'; }).join('');
+    f.innerHTML = [
+      '<div class="sh"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Flight details</div>',
+      '<div class="g2" style="margin-bottom:14px">',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Loyalty program</div><select id="fp" onchange="onFPChange()">'+pOpts+'</select></div>',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Credit card (cash payment)</div><select id="fcc">'+cOpts+'</select></div>',
+      '</div>',
+      '<div class="fl"><div class="lbl">Your status</div><div class="pills" id="fst">'+makeStatPills(FP[0].sts,'status','None')+'</div></div>',
+      '<div class="fl"><div class="lbl">Cabin class</div><div class="pills">',
+        '<button class="pill eco on" data-grp="cab" onclick="setPill(\'cab\',\'eco\',this)">Economy</button>',
+        '<button class="pill prem" data-grp="cab" onclick="setPill(\'cab\',\'prem\',this)">Prem. Economy</button>',
+        '<button class="pill biz" data-grp="cab" onclick="setPill(\'cab\',\'biz\',this)">Business</button>',
+        '<button class="pill fst" data-grp="cab" onclick="setPill(\'cab\',\'fst\',this)">First Class</button>',
+      '</div></div>',
+      '<div class="fl"><div class="lbl">Operating airline (airline you will actually fly)</div>',
+        '<select id="fal" onchange="onAlChange()"><option value="">-- Select operating airline --</option></select>',
+        '<div id="fal-note" class="anote"></div>',
+      '</div>',
+      '<div class="fl"><div class="lbl">Route type</div><div class="pills">',
+        '<button class="pill on" data-grp="route" onclick="setPill(\'route\',\'dom\',this)">Domestic (US)</button>',
+        '<button class="pill" data-grp="route" onclick="setPill(\'route\',\'short\',this)">International short-haul</button>',
+        '<button class="pill" data-grp="route" onclick="setPill(\'route\',\'long\',this)">International long-haul</button>',
+      '</div></div>',
+      '<div class="fl"><div class="lbl">Trip type</div><div class="pills">',
+        '<button class="pill on" data-grp="trip" onclick="setPill(\'trip\',\'ow\',this)">One-way</button>',
+        '<button class="pill" data-grp="trip" onclick="setPill(\'trip\',\'rt\',this)">Round-trip</button>',
+      '</div></div>',
+      '<div class="div"></div>',
+      '<div class="g2">',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Miles required (award)</div><input type="number" id="fpts" placeholder="e.g. 30,000" min="0"></div>',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Cash ticket price ($)</div><input type="number" id="fcash" placeholder="e.g. 650" min="0"></div>',
+      '</div>'
+    ].join('');
+    fillAirlines(0);
   }
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
-    const data=await res.json();
-    const text=data.content?.find(b=>b.type==='text')?.text||'No response.';
-    const fmt=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-      .replace(/^(Overall:|Best option:|Best cert:|Cabin strategy:|Peak value routes:|Uncapped strategy:|Red flags:|Tip:|Companion certificate tip:)/gm,'<h4>$1</h4>')
-      .replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
-    aiDiv.innerHTML=`<div class="ai-card"><div class="ai-header">
-      <div class="ai-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
-      <div><div class="ai-title">AI Insights</div><div class="ai-subtitle">Powered by Claude · Based on your data</div></div></div>
-      <div class="ai-body"><p>${fmt}</p></div></div>`;
-  }catch(err){
-    aiDiv.innerHTML=`<div class="ai-card"><div class="ai-header">
-      <div class="ai-icon"><svg viewBox="0 0 24 24" style="stroke:var(--danger)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-      <div><div class="ai-title" style="color:var(--danger)">Could not load AI insights</div><div class="ai-subtitle">${err.message}</div></div></div></div>`;
+  else if(mode==='hotel'){
+    var pOpts = HP.map(function(p,i){ return '<option value="'+i+'">'+p.n+'</option>'; }).join('');
+    var cOpts = CC.map(function(c,i){ return '<option value="'+i+'">'+c.n+'</option>'; }).join('');
+    f.innerHTML = [
+      '<div class="sh"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Hotel details</div>',
+      '<div class="g2" style="margin-bottom:14px">',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Hotel program</div><select id="hp" onchange="onHPChange()">'+pOpts+'</select></div>',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Credit card (cash payment)</div><select id="hcc">'+cOpts+'</select></div>',
+      '</div>',
+      '<div class="fl"><div class="lbl">Your status</div><div class="pills" id="hst">'+makeStatPills(HP[0].sts,'status','None')+'</div></div>',
+      '<div class="div"></div>',
+      '<div class="g3">',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Points required</div><input type="number" id="hpts" placeholder="e.g. 20,000" min="0"></div>',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Cash rate ($/night)</div><input type="number" id="hcash" placeholder="e.g. 350" min="0"></div>',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Nights</div><input type="number" id="hnights" value="1" min="1" max="30"></div>',
+      '</div>'
+    ].join('');
   }
-  btn.disabled=false;
+  else {
+    var pOpts = CP.map(function(p,i){ return '<option value="'+i+'">'+p.n+'</option>'; }).join('');
+    f.innerHTML = [
+      '<div class="sh"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Companion certificate</div>',
+      '<div class="fl"><div class="lbl">Certificate card</div><select id="cp" onchange="syncCP()">'+pOpts+'</select></div>',
+      '<div id="cpnote" style="font-size:12px;color:var(--tx2);background:var(--s2);padding:10px 14px;border-radius:8px;line-height:1.6;margin-bottom:14px"></div>',
+      '<div class="g2">',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Your ticket price ($)</div><input type="number" id="cmain" placeholder="e.g. 450" min="0"></div>',
+        '<div class="fl" style="margin-bottom:0"><div class="lbl">Companion cash ticket value ($)</div><input type="number" id="ccomp" placeholder="e.g. 450" min="0"></div>',
+      '</div>'
+    ].join('');
+    setTimeout(syncCP, 50);
+  }
 }
 
-// ─── CSV EXPORT ───────────────────────────────────────────────────────────────
-function exportCSV(type){
-  const rows=lastRows[type]; if(!rows||!rows.length)return;
-  let cols,csvRows;
-  if(type==='companion'){
-    cols=['Route','Program','Airline','Cabin','Companion value ($)','Taxes ($)','Annual fee ($)','Benefits ($)','Net fee ($)','Net value ($)','Multiple','Verdict'];
-    csvRows=[cols.join(',')];
-    rows.forEach(r=>csvRows.push([`"${r.route}"`,`"${r.prog}"`,r.airline,`"${r.cabin}"`,r.compVal,r.taxes.toFixed(2),r.annual,r.benefits,r.netFee.toFixed(0),r.netValue.toFixed(0),r.valueMult.toFixed(1),`"${r.verdict}"`].join(',')));
-  } else if(type==='fnc'){
-    cols=['Property','Program','Tier','Cap','Room rate ($)','Annual fee ($)','Benefits ($)','Net fee ($)','Nights','Cert cost ($)','Resort fees ($)','Net value ($)','Multiple','Verdict'];
-    csvRows=[cols.join(',')];
-    rows.forEach(r=>csvRows.push([`"${r.property}"`,`"${r.prog}"`,r.tier,`"${r.cap}"`,r.roomRate,r.annual,r.benefits,r.netFee.toFixed(0),r.nights,r.certCost.toFixed(0),r.resortFees,r.netValue.toFixed(0),r.valueMult.toFixed(1),`"${r.verdict}"`].join(',')));
+function onFPChange(){
+  var idx = parseInt(sv('fp').value)||0;
+  var p = FP[idx];
+  sv('fst').innerHTML = makeStatPills(p.sts,'status','None');
+  selSt.flight = 'None';
+  fillAirlines(idx);
+}
+
+function fillAirlines(idx){
+  var p = FP[idx];
+  var sel = sv('fal');
+  if(!sel) return;
+  var partners = PA[p.id] || [p.id];
+  sel.innerHTML = '<option value="">-- Select operating airline --</option>';
+  partners.forEach(function(id){
+    var a = AF[id];
+    if(a){
+      var opt = document.createElement('option');
+      opt.value = id; opt.textContent = a.n;
+      sel.appendChild(opt);
+    }
+  });
+  if(partners.length>0){ sel.value = partners[0]; }
+  onAlChange();
+}
+
+function onAlChange(){
+  var id = sv('fal')&&sv('fal').value;
+  var note = sv('fal-note');
+  if(!note) return;
+  if(id && AF[id]){
+    note.textContent = AF[id].nt;
+    note.className = 'anote '+AF[id].lvl;
+    note.style.display = 'block';
   } else {
-    cols=['Option','Program','Cabin','Points','Cash ($)','Fees ($)','Pts value ($)','Net award ($)','Pts if cash','True savings ($)','Eff. cpp (¢)','Rating','Verdict'];
-    csvRows=[cols.join(',')];
-    rows.forEach(r=>{const rt=cppRating(r.effCpp);csvRows.push([`"${r.label}"`,`"${r.prog}"`,r.cabin||'',r.pts,r.cash.toFixed(2),r.fees.toFixed(2),r.ptValue.toFixed(2),r.netAward.toFixed(2),r.ptsEarned,r.trueSave.toFixed(2),r.effCpp.toFixed(2),rt.lbl,r.verdict?'Use points':'Pay cash'].join(','));});
+    note.style.display = 'none';
   }
-  const blob=new Blob([csvRows.join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${type}_comparison.csv`;a.click();
 }
 
-function emptyMsg(){return`<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Fill in the required fields above, then click analyze.</div>`;}
+function onHPChange(){
+  var idx = parseInt(sv('hp').value)||0;
+  sv('hst').innerHTML = makeStatPills(HP[idx].sts,'status','None');
+  selSt.hotel = 'None';
+}
 
-// Init
-addEntry('airline'); addEntry('hotel'); addCompanion(); addFNC();
+function syncCP(){
+  var idx = parseInt(sv('cp')&&sv('cp').value||0);
+  var p = CP[idx];
+  var nb = sv('cpnote');
+  if(nb && p) nb.textContent = p.nt;
+}
+
+// ── CARD COMPARISON ────────────────────────────────────────────────────────
+function cardCompare(spend, type, selIdx){
+  var sel = CC[selIdx];
+  var selVal = (spend * (type==='hotel'?sel.ht:sel.fl) * sel.cpp) / 100;
+  var ranked = CC.map(function(c,i){
+    var mult = type==='hotel'?c.ht:c.fl;
+    return {i:i,c:c,val:(spend*mult*c.cpp)/100,pts:Math.round(spend*mult)};
+  }).filter(function(r){ return r.val>0; }).sort(function(a,b){ return b.val-a.val; });
+  var best = ranked[0];
+  var isBest = best.i===selIdx || Math.abs(best.val-selVal)<0.5;
+  var top = ranked.slice(0,Math.min(4,ranked.length));
+  var rows = top.map(function(r){
+    var mine = r.i===selIdx;
+    var isTop = r.i===best.i;
+    return '<div class="ccrow'+(mine?' mine':'')+'">'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:12.5px;font-weight:'+(mine?'600':'500')+';color:var(--tx);display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+r.c.n+
+          (isTop&&!mine?' <span class="cctag top">Best</span>':'')+
+          (mine?' <span class="cctag mine">Your card</span>':'')+
+        '</div>'+
+        '<div style="font-size:11px;color:var(--tx3);margin-top:2px">'+(type==='hotel'?r.c.ht:r.c.fl)+'x '+r.c.cur+' &middot; '+r.pts.toLocaleString()+' pts on $'+spend.toFixed(0)+'</div>'+
+      '</div>'+
+      '<div class="ccval'+(isTop?' best':'')+'">$'+r.val.toFixed(2)+'</div>'+
+    '</div>';
+  }).join('');
+  var note = '<div class="ccnote">'+(isBest?sel.nt:best.c.nt)+'</div>';
+  if(isBest){
+    return '<div class="ccbox"><div class="slbl">Best credit card for this purchase</div>'+
+      '<div class="ccbox-inner"><div class="ccbox-hd best">You already have the best card for this purchase</div>'+rows+note+'</div></div>';
+  } else {
+    var diff = (best.val-selVal).toFixed(2);
+    var extra = (ranked[0].pts - Math.round(spend*(type==='hotel'?sel.ht:sel.fl))).toLocaleString();
+    return '<div class="ccbox"><div class="slbl">Best credit card for this purchase</div>'+
+      '<div class="ccbox-inner"><div class="ccbox-hd better">Better card found — <strong>'+best.c.n+'</strong> earns <strong>$'+diff+' more</strong> (+'+extra+' '+best.c.cur+')</div>'+rows+note+'</div></div>';
+  }
+}
+
+// ── RENDER RESULT ──────────────────────────────────────────────────────────
+function renderResult(o){
+  var mHTML = o.metrics.map(function(m){
+    return '<div class="met"><div class="mnum'+(m.cls?' '+m.cls:'')+'">'+m.v+'</div><div class="mlbl">'+m.l+'</div></div>';
+  }).join('');
+
+  var pRows = o.bd.pts.map(function(r){
+    return '<div class="bdrow '+(r.cls||'')+'"><span>'+r.k+'</span><span class="bdval">'+r.v+'</span></div>';
+  }).join('');
+  var cRows = o.bd.cash.map(function(r){
+    return '<div class="bdrow '+(r.cls||'')+'"><span>'+r.k+'</span><span class="bdval">'+r.v+'</span></div>';
+  }).join('');
+
+  var html = '<div class="rcard">'+
+    '<div class="rhero '+(o.pts?'pts':'cash')+'">'+
+      '<div class="vbadge '+(o.pts?'pts':'cash')+'">'+(o.pts?si('<polyline points="20 6 9 17 4 12"/>'):si('<path d="M5 12h14M12 5l7 7-7 7"/>'))+(o.pts?' Use your points':' Pay cash')+'</div>'+
+      '<div class="rh1">'+o.headline+'</div>'+
+      '<div class="rsub">'+o.sub+'</div>'+
+    '</div>'+
+    '<div class="rbody">'+
+      '<div class="mets">'+mHTML+'</div>'+
+      '<div id="aiarea"><div class="aibox"><div class="ailbl">'+si('<circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>')+' AI Analysis</div>'+
+        '<div class="ald"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:4px">Analyzing…</span></div></div></div>'+
+      (o.ccHtml||'')+
+      '<div class="slbl">Full breakdown</div>'+
+      '<div class="bdwrap"><div class="bdgrid"><div class="bdcol"><div class="bdhead pts">Using points / cert</div>'+pRows+'</div>'+
+        '<div class="bdcol"><div class="bdhead cash">Paying cash</div>'+cRows+'</div></div></div>'+
+      (o.bens&&o.bens.length?'<div class="slbl" style="margin-top:20px">What else affects this</div>'+benefitBlock(o.bens):'') +
+    '</div>'+
+    '<div class="rftr"><div class="rfnote">True award cost = miles opportunity value + fees. Cash cost = ticket price minus points earned back. Points win only when award cost is less than cash cost.</div>'+
+      '<button class="newbtn" onclick="sv(\'result\').innerHTML=\'\';window.scrollTo({top:0,behavior:\'smooth\'})">'+si('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>'+'')+' New</button>'+
+    '</div></div>';
+
+  sv('result').innerHTML = html;
+  sv('result').scrollIntoView({behavior:'smooth',block:'start'});
+  fetchAI(o.ai);
+}
+
+// ── ANALYZE ────────────────────────────────────────────────────────────────
+function analyze(){
+  if(mode==='flight') analyzeF();
+  else if(mode==='hotel') analyzeH();
+  else analyzeC();
+}
+
+function analyzeF(){
+  var pi = parseInt(sv('fp').value)||0;
+  var ci = parseInt(sv('fcc').value)||0;
+  var prog = FP[pi], card = CC[ci];
+  var pts = gv('fpts'), cash = gv('fcash');
+  var status = selSt.flight||'None';
+  var cab = selCab||'eco';
+  var route = selRt||'dom';
+  var trip = selTrip||'ow';
+  var alId = sv('fal')&&sv('fal').value||prog.id;
+  var alData = AF[alId]||(prog.id&&AF[prog.id]);
+
+  if(!pts||!cash){ alert('Please enter miles required and cash price.'); return; }
+
+  // Fees
+  var baseFee = alData ? (route==='dom'?(alData.dom||5.60):route==='short'?(alData.sh||80):(alData.lo||100)) : (route==='dom'?5.60:route==='short'?80:100);
+  var fees = trip==='rt' ? baseFee*2 : baseFee;
+  var lvl = alData ? alData.lvl : 'moderate';
+  var feeNote = alData ? alData.nt : 'Estimated based on route type.';
+  var alName = alData ? alData.n : prog.n;
+
+  // Points value
+  var cabCpp = prog.cpp[cab]||prog.cpp.eco||1.5;
+  var ptVal = (pts * cabCpp) / 100;
+  var awardCost = ptVal + fees; // true cost = opportunity cost of miles + fees
+
+  // Cash earning
+  var earnRate = (prog.earn&&prog.earn[status]) || prog.earn['None'] || 5;
+  var milesEarned = Math.round(cash * earnRate);
+  var milesVal = (milesEarned * cabCpp) / 100;
+  var ccMult = card.fl||0;
+  var ccPts = Math.round(cash * ccMult);
+  var ccVal = (ccPts * card.cpp) / 100;
+  var totalEarned = milesVal + ccVal;
+  var cashCost = cash - totalEarned;
+
+  var savings = cashCost - awardCost;
+  var usePoints = savings > 0;
+  var effCpp = (cash / pts) * 100;
+  var cabNames = {eco:'Economy',prem:'Prem. Economy',biz:'Business',fst:'First Class'};
+
+  // Benefits
+  var bens = [];
+  if(lvl==='very_high'){
+    bens.push({t:'neg',title:'Very high award surcharges: $'+fees.toFixed(2)+' ('+trip+')',desc:feeNote,tag:'-$'+fees.toFixed(2)+' cash'});
+  } else if(lvl==='high'){
+    bens.push({t:'neg',title:'High carrier surcharges: $'+fees.toFixed(2)+' on '+alName,desc:feeNote,tag:'-$'+fees.toFixed(2)});
+  } else if(lvl==='low'||lvl==='none'){
+    bens.push({t:'pos',title:'Low/no surcharges on '+alName,desc:feeNote,tag:'Only $'+fees.toFixed(2)+' taxes'});
+  } else {
+    bens.push({t:'neu',title:'Moderate fees: $'+fees.toFixed(2)+' on '+alName,desc:feeNote,tag:'$'+fees.toFixed(2)});
+  }
+  if(cab==='biz'||cab==='fst'){
+    bens.push({t:'gld',title:cabNames[cab]+' — ideal use of points',desc:'Cash '+cabNames[cab]+' fares run $2,000-$10,000+ while awards cost a fraction. At '+effCpp.toFixed(2)+'c/pt your miles deliver maximum value here.',tag:cabCpp+'c avg cpp'});
+  }
+  var sp = (prog.sp&&prog.sp[status])||[];
+  if(status!=='None'&&sp.length){
+    sp.forEach(function(s){
+      if(s.toLowerCase().includes('upgrade')){
+        bens.push({t:'gld',title:'Upgrade eligible ('+status+')',desc:s,tag:'Can improve cabin'});
+      } else if(s.toLowerCase().includes('lounge')){
+        bens.push({t:'pos',title:'Lounge access ('+status+')',desc:s,tag:'$40-80/visit'});
+      }
+    });
+  }
+
+  var headline = usePoints
+    ? 'Points save you <span style="color:var(--grm)">$'+Math.abs(savings).toFixed(0)+'</span>'
+    : 'Pay cash — save your miles';
+  var sub = usePoints
+    ? pts.toLocaleString()+' miles worth <strong>$'+ptVal.toFixed(0)+'</strong> at '+cabCpp+'c/pt. Cash costs $'+cashCost.toFixed(0)+' after earning back <strong>'+milesEarned.toLocaleString()+' miles + '+ccPts.toLocaleString()+' '+(card.cur||'pts')+'</strong> ($'+totalEarned.toFixed(0)+'). True award cost ($'+awardCost.toFixed(0)+') vs net cash ($'+cashCost.toFixed(0)+'): points save <strong>$'+Math.abs(savings).toFixed(0)+'</strong>.'
+    : 'At '+effCpp.toFixed(2)+'c/mile here vs '+cabCpp+'c average, the true award cost ($'+awardCost.toFixed(0)+') exceeds cash ($'+cashCost.toFixed(0)+'). Cash earns back <strong>'+milesEarned.toLocaleString()+' miles + '+ccPts.toLocaleString()+' '+(card.cur||'pts')+'</strong> ($'+totalEarned.toFixed(0)+'). Save points for '+((cab==='eco')?' business/first where cpp hits 3-5c':'a higher-value route')+'.';
+
+  renderResult({
+    pts: usePoints,
+    headline: headline,
+    sub: sub,
+    metrics:[
+      {v:effCpp.toFixed(2)+'c',l:'Effective cpp',cls:effCpp>=1.5?'gr':effCpp<1.0?'re':''},
+      {v:'$'+ptVal.toFixed(0),l:'Points value',cls:''},
+      {v:(savings>=0?'+':'')+' $'+Math.abs(savings).toFixed(0),l:usePoints?'Net savings':'Lost vs cash',cls:usePoints?'gr':'re'}
+    ],
+    bd:{
+      pts:[
+        {k:pts.toLocaleString()+' miles (opp. cost @ '+cabCpp+'c/pt)',v:'$'+ptVal.toFixed(0),cls:''},
+        {k:'Award fees/taxes ('+alName+')',v:'-$'+fees.toFixed(2),cls:'neg'},
+        {k:'True award cost',v:'$'+awardCost.toFixed(2),cls:'net'}
+      ],
+      cash:[
+        {k:'Cash ticket price',v:'$'+cash.toFixed(2),cls:''},
+        {k:prog.n+' miles earned ('+earnRate+'x'+(status!=='None'?' '+status+' bonus':' base')+')',v:'+'+milesEarned.toLocaleString()+' ($'+milesVal.toFixed(0)+')',cls:'earn'},
+        card.cpp>0?{k:card.n+' ('+ccMult+'x '+card.cur+')',v:'+'+ccPts.toLocaleString()+' ($'+ccVal.toFixed(0)+')',cls:'earn'}:{k:'No card points',v:'$0',cls:''},
+        {k:'Total earned back',v:'$'+totalEarned.toFixed(0),cls:'earn'},
+        {k:'Net cash cost',v:'$'+cashCost.toFixed(0),cls:'net'}
+      ]
+    },
+    bens: bens,
+    ccHtml: card.cpp>0 ? cardCompare(cash,'flight',ci) : '',
+    ai:{type:'flight',prog:prog.n,al:alName,status:status,cab:cabNames[cab],route:route,trip:trip,pts:pts,cash:cash,fees:fees,lvl:lvl,feeNote:feeNote,ptVal:ptVal,cabCpp:cabCpp,effCpp:effCpp,milesEarned:milesEarned,milesVal:milesVal,earnRate:earnRate,ccName:card.n,ccMult:ccMult,ccPts:ccPts,ccVal:ccVal,totalEarned:totalEarned,cashCost:cashCost,awardCost:awardCost,savings:savings,usePoints:usePoints,sp:sp}
+  });
+}
+
+function analyzeH(){
+  var pi = parseInt(sv('hp').value)||0;
+  var ci = parseInt(sv('hcc').value)||0;
+  var prog = HP[pi], card = CC[ci];
+  var pts = gv('hpts'), cashPN = gv('hcash');
+  var nights = Math.max(1,gv('hnights')||1);
+  var total = cashPN * nights;
+  var status = selSt.hotel||'None';
+
+  if(!pts||!cashPN){ alert('Please enter points required and cash rate.'); return; }
+
+  var cpp = prog.cpp;
+  var ptVal = (pts * cpp) / 100;
+  var awardCost = ptVal; // hotels: no fees typically
+
+  var htPts = Math.round(total * prog.earn);
+  var htVal = (htPts * cpp) / 100;
+  var ccMult = card.ht||0;
+  var ccPts = Math.round(total * ccMult);
+  var ccVal = (ccPts * card.cpp) / 100;
+  var totalEarned = htVal + ccVal;
+  var cashCost = total - totalEarned;
+  var savings = cashCost - awardCost;
+  var usePoints = savings > 0;
+  var effCpp = (total / pts) * 100;
+
+  // Status value
+  var sp = (prog.sp&&prog.sp[status])||[];
+  var bens = [];
+  var stVal = 0;
+  if(status!=='None'){
+    if(sp.some(function(s){ return s.toLowerCase().includes('breakfast'); })){
+      var bfv = 35*2*nights;
+      stVal += bfv;
+      bens.push({t:'pos',title:'Free breakfast ('+status+') — $'+bfv+' value',desc:'Complimentary breakfast for 2 guests ~$35/person/day across '+nights+' night(s).',tag:'+$'+bfv});
+    }
+    if(sp.some(function(s){ return s.toLowerCase().includes('resort')&&s.toLowerCase().includes('waiv'); })){
+      var rfv = 50*nights;
+      stVal += rfv;
+      bens.push({t:'pos',title:'Resort fees waived ('+status+') — ~$'+rfv,desc:'Resort/destination fees waived at eligible properties (~$35-75/night).',tag:'+$'+rfv+' est.'});
+    }
+    if(sp.some(function(s){ return s.toLowerCase().includes('lounge')||s.toLowerCase().includes('club'); })){
+      bens.push({t:'pos',title:'Executive lounge access ('+status+')',desc:'Complimentary food, drinks, workspaces. ~$50-100/day value.',tag:'$50-100/day'});
+    }
+    if(sp.some(function(s){ return s.toLowerCase().includes('suite')||(s.toLowerCase().includes('upgrade')&&!s.toLowerCase().includes('request')); })){
+      bens.push({t:'gld',title:'Confirmed upgrade ('+status+')',desc:'Eligible for room/suite upgrades. A suite retailing at $800 on a $350 room rate effectively multiplies your value.',tag:'Can double room value'});
+    }
+  }
+  if(prog.fnc){
+    bens.push({t:'gld',title:'Free night certificate available',desc:prog.n+' credit cards include annual free night certificates. '+prog.fnc+'.',tag:'$100-1,500 value'});
+  }
+
+  var headline = usePoints
+    ? 'Points save you <span style="color:var(--grm)">$'+Math.abs(savings).toFixed(0)+'</span>'
+    : 'Pay cash — better value here';
+  var sub = usePoints
+    ? pts.toLocaleString()+' points worth <strong>$'+ptVal.toFixed(0)+'</strong> ('+cpp+'c/pt). Cash earns back <strong>'+htPts.toLocaleString()+' pts + '+ccPts.toLocaleString()+' '+(card.cur||'pts')+'</strong> ($'+totalEarned.toFixed(0)+'). Points win by <strong>$'+Math.abs(savings).toFixed(0)+'</strong>.'+(stVal>0?' Your '+status+' status adds another ~<strong>$'+stVal+'</strong> in perks.':'')
+    : 'At '+effCpp.toFixed(2)+'c/pt, redeeming costs $'+awardCost.toFixed(0)+' vs cash at $'+cashCost.toFixed(0)+'. Paying cash earns <strong>'+htPts.toLocaleString()+' pts + '+ccPts.toLocaleString()+' '+(card.cur||'pts')+'</strong> ($'+totalEarned.toFixed(0)+') back. Save points for a higher-value property.';
+
+  renderResult({
+    pts: usePoints,
+    headline: headline,
+    sub: sub,
+    metrics:[
+      {v:effCpp.toFixed(2)+'c',l:'Effective cpp',cls:effCpp>=1.5?'gr':effCpp<0.7?'re':''},
+      {v:'$'+ptVal.toFixed(0),l:'Points value',cls:''},
+      {v:(savings>=0?'+':'')+' $'+Math.abs(savings).toFixed(0),l:usePoints?'Net savings':'Lost vs cash',cls:usePoints?'gr':'re'}
+    ],
+    bd:{
+      pts:[
+        {k:pts.toLocaleString()+' points (opp. cost @ '+cpp+'c/pt)',v:'$'+ptVal.toFixed(0),cls:''},
+        {k:'Award fees/taxes',v:'$0.00',cls:''},
+        {k:'True award cost',v:'$'+awardCost.toFixed(0),cls:'net'}
+      ],
+      cash:[
+        {k:'Cash: $'+cashPN+'/night x '+nights,v:'$'+total.toFixed(2),cls:''},
+        {k:prog.n+' pts ('+prog.earn+'x)',v:'+'+htPts.toLocaleString()+' ($'+htVal.toFixed(0)+')',cls:'earn'},
+        card.cpp>0?{k:card.n+' ('+ccMult+'x '+card.cur+')',v:'+'+ccPts.toLocaleString()+' ($'+ccVal.toFixed(0)+')',cls:'earn'}:{k:'No card points',v:'$0',cls:''},
+        stVal>0?{k:'Status perks value ('+status+')',v:'+$'+stVal+' est.',cls:'earn'}:null,
+        {k:'Net cash cost',v:'$'+(cashCost-stVal).toFixed(0),cls:'net'}
+      ].filter(Boolean)
+    },
+    bens: bens,
+    ccHtml: card.cpp>0 ? cardCompare(total,'hotel',ci) : '',
+    ai:{type:'hotel',prog:prog.n,status:status,nights:nights,cashPN:cashPN,total:total,pts:pts,ptVal:ptVal,cpp:cpp,effCpp:effCpp,htPts:htPts,htVal:htVal,htEarn:prog.earn,ccName:card.n,ccMult:ccMult,ccPts:ccPts,ccVal:ccVal,totalEarned:totalEarned,cashCost:cashCost,awardCost:awardCost,savings:savings,usePoints:usePoints,stVal:stVal,status:status,fnc:prog.fnc}
+  });
+}
+
+function analyzeC(){
+  var pi = parseInt(sv('cp').value)||0;
+  var prog = CP[pi];
+  var main = gv('cmain'), comp = gv('ccomp');
+  if(!comp){ alert('Please enter the companion ticket cash value.'); return; }
+  var netFee = Math.max(0, prog.annual - prog.benefits);
+  var netVal = comp - prog.taxes - netFee;
+  var useIt = netVal > 0;
+  var mult = comp / Math.max(netFee+prog.taxes,1);
+  var be = netFee + prog.taxes;
+
+  var bens = [
+    {t:'neu',title:'Card annual fee: $'+prog.annual,desc:'Net cost after $'+prog.benefits+' in other card benefits you use = $'+netFee+' attributable to this certificate.',tag:'Net cert cost: $'+netFee},
+    {t:'neu',title:'Companion taxes & fees: $'+prog.taxes.toFixed(2),desc:prog.taxes>50?'This program charges a flat companion fee ($99) on top of taxes — still far below the full cash fare.':'Just the standard US excise tax — essentially free.',tag:'$'+prog.taxes.toFixed(2)},
+    useIt
+      ? {t:'pos',title:'Net savings: $'+netVal.toFixed(0),desc:'Companion value ($'+comp+') minus taxes ($'+prog.taxes.toFixed(2)+') minus net fee ($'+netFee+') = $'+netVal.toFixed(0)+' saved. Value multiple: '+mult.toFixed(1)+'x.',tag:mult.toFixed(1)+'x value'}
+      : {t:'neg',title:'Does not break even at this fare',desc:'Need companion fare above $'+be.toFixed(0)+' to justify the cert. At $'+comp+' this cert loses $'+Math.abs(netVal).toFixed(0)+'.',tag:'Break-even: $'+be.toFixed(0)}
+  ];
+
+  var headline = useIt ? 'Use the cert — save <span style="color:var(--grm)">$'+netVal.toFixed(0)+'</span>' : 'Skip — cert does not break even at this fare';
+  var sub = useIt
+    ? 'Companion flies for $'+prog.taxes.toFixed(2)+' instead of $'+comp+'. Net annual fee after benefits: $'+netFee+'. Total cert cost: $'+(netFee+prog.taxes).toFixed(0)+'. <strong>You save $'+netVal.toFixed(0)+' ('+mult.toFixed(1)+'x value)</strong>.'
+    : 'At $'+comp+' the cert costs more than it saves (break-even: $'+be.toFixed(0)+'). This cert is profitable when the companion fare exceeds $'+be.toFixed(0)+'.';
+
+  renderResult({
+    pts: useIt,
+    headline: headline,
+    sub: sub,
+    metrics:[
+      {v:'$'+comp,l:'Companion ticket value',cls:''},
+      {v:'$'+(netFee+prog.taxes).toFixed(0),l:'Effective cert cost',cls:''},
+      {v:(netVal>=0?'+':'')+' $'+Math.abs(netVal).toFixed(0),l:useIt?'Net saved':'Does not break even',cls:netVal>=0?'gr':'re'}
+    ],
+    bd:{
+      pts:[
+        {k:'Companion ticket value',v:'$'+comp,cls:''},
+        {k:'Taxes & fees you pay',v:'-$'+prog.taxes.toFixed(2),cls:'neg'},
+        {k:'Net annual fee (after benefits)',v:'-$'+netFee,cls:'neg'},
+        {k:'Net value',v:'$'+netVal.toFixed(0),cls:'net'}
+      ],
+      cash:[
+        main>0?{k:'Your ticket (cash)',v:'$'+main,cls:''}:null,
+        {k:'Companion ticket (cash)',v:'$'+comp,cls:''},
+        {k:'Total for 2 (cash)',v:'$'+(main+comp).toFixed(0),cls:''},
+        {k:'Total with certificate',v:'$'+(main+prog.taxes+netFee).toFixed(0),cls:'net'}
+      ].filter(Boolean)
+    },
+    bens: bens,
+    ccHtml: '',
+    ai:{type:'companion',prog:prog.n,airline:prog.airline,comp:comp,taxes:prog.taxes,annual:prog.annual,benefits:prog.benefits,netFee:netFee,netVal:netVal,mult:mult,useIt:useIt,be:be,nt:prog.nt}
+  });
+}
+
+// ── AI ─────────────────────────────────────────────────────────────────────
+async function fetchAI(d){
+  var prompt = '';
+  if(d.type==='flight'){
+    prompt = 'You are a travel rewards expert. Analyze this flight redemption.\n\n'+
+      'Program: '+d.prog+' | Operating airline: '+d.al+' | Status: '+d.status+' | Cabin: '+d.cab+' | Route: '+d.route+' ('+d.trip+')\n'+
+      'Miles: '+d.pts.toLocaleString()+' | Cash: $'+d.cash+' | Award fees on '+d.al+': $'+d.fees+' (surcharge level: '+d.lvl+')\n'+
+      'Fee note: '+d.feeNote+'\n'+
+      'Points value @ '+d.cabCpp+'c/pt: $'+d.ptVal.toFixed(0)+' | Effective cpp: '+d.effCpp.toFixed(2)+'c\n'+
+      'Cash earning: '+d.earnRate+'x status miles ('+d.milesEarned.toLocaleString()+'=$'+d.milesVal.toFixed(0)+') + '+d.ccName+' '+d.ccMult+'x ('+d.ccPts.toLocaleString()+'=$'+d.ccVal.toFixed(0)+')\n'+
+      'Net cash cost: $'+d.cashCost.toFixed(0)+' | True award cost: $'+d.awardCost.toFixed(0)+'\n'+
+      'DECISION: '+(d.usePoints?'USE POINTS — saves $'+Math.abs(d.savings).toFixed(0):'PAY CASH')+'\n'+
+      'Status perks: '+(d.sp&&d.sp.length?d.sp.join('; '):'none')+'\n\n'+
+      'Write 4-5 sentences: confirm verdict with numbers, address the '+d.lvl+' surcharges on '+d.al+' specifically, assess if '+d.effCpp.toFixed(2)+'c/pt is good for '+d.cab+' on '+d.prog+', recommend a lower-fee alternative if surcharges are high, give one specific tip. No bullets or headers.';
+  } else if(d.type==='hotel'){
+    prompt = 'You are a hotel loyalty expert. Analyze this redemption.\n\n'+
+      'Program: '+d.prog+' | Status: '+d.status+' | Nights: '+d.nights+' | Cash: $'+d.cashPN+'/night (total $'+d.total+')\n'+
+      'Points: '+d.pts.toLocaleString()+' | Points value @ '+d.cpp+'c/pt: $'+d.ptVal.toFixed(0)+' | Effective cpp: '+d.effCpp.toFixed(2)+'c\n'+
+      'Cash earning: '+d.htEarn+'x hotel pts ('+d.htPts.toLocaleString()+'=$'+d.htVal.toFixed(0)+') + '+d.ccName+' '+d.ccMult+'x ('+d.ccPts.toLocaleString()+'=$'+d.ccVal.toFixed(0)+')\n'+
+      'Net cash cost: $'+d.cashCost.toFixed(0)+' | Award cost: $'+d.awardCost.toFixed(0)+' | Status value: ~$'+d.stVal+'\n'+
+      'DECISION: '+(d.usePoints?'USE POINTS':'PAY CASH')+'\n'+
+      (d.fnc?'FNC available: '+d.fnc+'\n':'')+
+      'Write 4-5 sentences: confirm verdict, assess '+d.effCpp.toFixed(2)+'c/pt for '+d.prog+', address status perks, mention FNC if available, one specific tip. No bullets.';
+  } else {
+    prompt = 'You are a companion certificate expert.\n\n'+
+      'Certificate: '+d.prog+' | Airline: '+d.airline+' | Companion value: $'+d.comp+' | Taxes: $'+d.taxes+'\n'+
+      'Net cert cost: $'+d.netFee+' | Net value: $'+d.netVal.toFixed(0)+' | Multiple: '+d.mult.toFixed(1)+'x | DECISION: '+(d.useIt?'USE CERT':'SKIP')+'\n\n'+
+      'Write 4-5 sentences: confirm verdict, assess '+d.mult.toFixed(1)+'x value, best routes for this cert, how benefits offset fee, one strategic tip. No bullets.';
+  }
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:prompt}]})
+    });
+    var data = await res.json();
+    var text = data.content&&data.content.find(function(b){ return b.type==='text'; });
+    var box = sv('aiarea');
+    if(box&&text&&text.text){
+      box.innerHTML = '<div class="aibox"><div class="ailbl">AI Analysis</div>'+
+        '<div class="aitxt">'+text.text.replace(/\n\n/g,'<br><br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')+'</div></div>';
+    } else if(box){ box.innerHTML=''; }
+  } catch(e){
+    var box = sv('aiarea'); if(box) box.innerHTML='';
+  }
+}
+
+buildForm();
 </script>
 </body>
 </html>
