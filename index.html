@@ -351,11 +351,11 @@ var CC = [
   {id:'unit_exp', n:'United Explorer Card',             fl:2,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'2x United + hotels. 2 United Club passes/yr. Free first bag.'},
   {id:'unit_quest',n:'United Quest Card',               fl:3,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'3x United, 2x travel/dining. $125 United purchase credit.'},
   {id:'unit_club',n:'United Club Infinite Card',        fl:4,  ht:2,  cpp:1.35, cur:'United Miles',       nt:'4x United, 2x travel. United Club membership included ($700 value).'},
-  {id:'hyatt_c',  n:'World of Hyatt Card',              fl:1,  ht:4,  cpp:1.7,  cur:'Hyatt Points',       nt:'4x Hyatt, 2x dining/fitness/local transit. 1 Cat 1-4 free night cert/yr.'},
-  {id:'marriott_b',n:'Marriott Bonvoy Boundless',       fl:1,  ht:6,  cpp:0.8,  cur:'Marriott Points',    nt:'6x Marriott, 2x everywhere. Free night cert (Cat 1-5)/yr. 15 Elite Night Credits/yr.'},
-  {id:'marriott_br',n:'Marriott Bonvoy Brilliant (Amex)',fl:1, ht:6,  cpp:0.8,  cur:'Marriott Points',    nt:'6x Marriott. $300 dining credit, $100 property credit, 85k free night cert/yr, Priority Pass.'},
-  {id:'hilton_a', n:'Hilton Honors Aspire (Amex)',      fl:3,  ht:14, cpp:0.6,  cur:'Hilton Points',      nt:'14x Hilton, 7x restaurants/flights. Free uncapped night cert (Waldorf, Conrad). Hilton Diamond status automatically.'},
-  {id:'hilton_s', n:'Hilton Honors Surpass (Amex)',     fl:3,  ht:12, cpp:0.6,  cur:'Hilton Points',      nt:'12x Hilton, 6x restaurants/groceries/gas. Free uncapped night cert. Hilton Gold status automatically.'},
+  {id:'hyatt_c',  n:'World of Hyatt Card',              fl:1,  ht:4,  htBase:1, htChain:'hyatt',   cpp:1.7,  cur:'Hyatt Points',       nt:'4x Hyatt properties only, 1x at non-Hyatt hotels. 2x dining/fitness/transit. 1 Cat 1-4 free night cert/yr.'},
+  {id:'marriott_b',n:'Marriott Bonvoy Boundless',       fl:1,  ht:6,  htBase:2, htChain:'marriott', cpp:0.8,  cur:'Marriott Points',    nt:'6x Marriott properties only, 2x at non-Marriott hotels. Free night cert (Cat 1-5)/yr. 15 Elite Night Credits/yr.'},
+  {id:'marriott_br',n:'Marriott Bonvoy Brilliant (Amex)',fl:1, ht:6,  htBase:2, htChain:'marriott', cpp:0.8,  cur:'Marriott Points',    nt:'6x Marriott properties only, 2x at non-Marriott hotels. $300 dining credit, $100 property credit, 85k free night cert/yr, Priority Pass.'},
+  {id:'hilton_a', n:'Hilton Honors Aspire (Amex)',      fl:3,  ht:14, htBase:3, htChain:'hilton',  cpp:0.6,  cur:'Hilton Points',      nt:'14x Hilton properties only, 3x at non-Hilton hotels. 7x restaurants/flights. Free uncapped night cert (Waldorf, Conrad). Hilton Diamond status automatically.'},
+  {id:'hilton_s', n:'Hilton Honors Surpass (Amex)',     fl:3,  ht:12, htBase:3, htChain:'hilton',  cpp:0.6,  cur:'Hilton Points',      nt:'12x Hilton properties only, 3x at non-Hilton hotels. 6x restaurants/groceries/gas. Free uncapped night cert. Hilton Gold status automatically.'},
   {id:'delta_res',n:'Delta SkyMiles Reserve (Amex)',    fl:3,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'3x Delta flights. Sky Club access (15 visits). Annual companion cert (first/Delta One). 15k MQMs on $30k spend.'},
   {id:'delta_plat',n:'Delta SkyMiles Platinum (Amex)',  fl:2,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'2x Delta + hotels/restaurants. Annual companion cert (main cabin). First checked bag free.'},
   {id:'delta_gold',n:'Delta SkyMiles Gold (Amex)',      fl:2,  ht:1,  cpp:1.2,  cur:'Delta Miles',        nt:'2x Delta + restaurants/supermarkets. First checked bag free. Priority boarding.'},
@@ -555,12 +555,19 @@ function syncCP(){
 }
 
 // ── CARD COMPARISON ────────────────────────────────────────────────────────
-function cardCompare(spend, type, selIdx){
+function cardCompare(spend, type, selIdx, hotelProgId){
+  function htMult(c){
+    if(type!=='hotel') return c.fl||0;
+    // Chain bonus only applies to matching hotel program
+    if(c.htChain && c.htChain===hotelProgId) return c.ht||0;
+    if(c.htChain && c.htChain!==hotelProgId) return c.htBase||c.ht||0;
+    return c.ht||0; // general travel cards apply full rate
+  }
   var sel = CC[selIdx];
-  var selVal = (spend * (type==='hotel'?sel.ht:sel.fl) * sel.cpp) / 100;
+  var selVal = (spend * htMult(sel) * sel.cpp) / 100;
   var ranked = CC.map(function(c,i){
-    var mult = type==='hotel'?c.ht:c.fl;
-    return {i:i,c:c,val:(spend*mult*c.cpp)/100,pts:Math.round(spend*mult)};
+    var mult = htMult(c);
+    return {i:i,c:c,mult:mult,val:(spend*mult*c.cpp)/100,pts:Math.round(spend*mult)};
   }).filter(function(r){ return r.val>0; }).sort(function(a,b){ return b.val-a.val; });
   var best = ranked[0];
   var isBest = best.i===selIdx || Math.abs(best.val-selVal)<0.5;
@@ -574,7 +581,7 @@ function cardCompare(spend, type, selIdx){
           (isTop&&!mine?' <span class="cctag top">Best</span>':'')+
           (mine?' <span class="cctag mine">Your card</span>':'')+
         '</div>'+
-        '<div style="font-size:11px;color:var(--tx3);margin-top:2px">'+(type==='hotel'?r.c.ht:r.c.fl)+'x '+r.c.cur+' &middot; '+r.pts.toLocaleString()+' pts on $'+spend.toFixed(0)+'</div>'+
+        '<div style="font-size:11px;color:var(--tx3);margin-top:2px">'+r.mult+'x '+r.c.cur+' &middot; '+r.pts.toLocaleString()+' pts on $'+spend.toFixed(0)+'</div>'+
       '</div>'+
       '<div class="ccval'+(isTop?' best':'')+'">$'+r.val.toFixed(2)+'</div>'+
     '</div>';
@@ -585,7 +592,7 @@ function cardCompare(spend, type, selIdx){
       '<div class="ccbox-inner"><div class="ccbox-hd best">You already have the best card for this purchase</div>'+rows+note+'</div></div>';
   } else {
     var diff = (best.val-selVal).toFixed(2);
-    var extra = (ranked[0].pts - Math.round(spend*(type==='hotel'?sel.ht:sel.fl))).toLocaleString();
+    var extra = (ranked[0].pts - Math.round(spend*htMult(sel))).toLocaleString();
     return '<div class="ccbox"><div class="slbl">Best credit card for this purchase</div>'+
       '<div class="ccbox-inner"><div class="ccbox-hd better">Better card found — <strong>'+best.c.n+'</strong> earns <strong>$'+diff+' more</strong> (+'+extra+' '+best.c.cur+')</div>'+rows+note+'</div></div>';
   }
@@ -821,7 +828,7 @@ function analyzeH(){
       ].filter(Boolean)
     },
     bens: bens,
-    ccHtml: card.cpp>0 ? cardCompare(total,'hotel',ci) : '',
+    ccHtml: card.cpp>0 ? cardCompare(total,'hotel',ci,prog.id) : '',
     ai:{type:'hotel',prog:prog.n,status:status,nights:nights,cashPN:cashPN,total:total,pts:pts,ptVal:ptVal,cpp:cpp,effCpp:effCpp,htPts:htPts,htVal:htVal,htEarn:prog.earn,ccName:card.n,ccMult:ccMult,ccPts:ccPts,ccVal:ccVal,totalEarned:totalEarned,cashCost:cashCost,awardCost:awardCost,savings:savings,usePoints:usePoints,stVal:stVal,status:status,fnc:prog.fnc}
   });
 }
